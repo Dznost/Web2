@@ -31,7 +31,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "build": "npm install && echo Done"
+    "start": "node index.js"
   }
 }
 
