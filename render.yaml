@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: library-management-app
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
