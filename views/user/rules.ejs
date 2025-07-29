@@ -1,0 +1,156 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        Quy định mượn sách
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-graduation-cap me-2"></i>
+                                        Sinh viên
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-clock text-primary me-2"></i>
+                                            <strong>Thời gian mượn:</strong> Tối đa 7 ngày
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-books text-primary me-2"></i>
+                                            <strong>Số lượng:</strong> Không giới hạn
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-money-bill text-primary me-2"></i>
+                                            <strong>Phí trễ hạn:</strong> 5,000 VND/ngày
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-success">
+                                <div class="card-header bg-success text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-chalkboard-teacher me-2"></i>
+                                        Giảng viên
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-infinity text-success me-2"></i>
+                                            <strong>Thời gian mượn:</strong> Không giới hạn
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-books text-success me-2"></i>
+                                            <strong>Số lượng:</strong> Tối đa 5 quyển/năm
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-money-bill text-success me-2"></i>
+                                            <strong>Phí trễ hạn:</strong> Miễn phí
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-user me-2"></i>
+                                        Độc giả khác
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-clock text-warning me-2"></i>
+                                            <strong>Thời gian mượn:</strong> Tối đa 7 ngày
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-books text-warning me-2"></i>
+                                            <strong>Số lượng:</strong> Tối đa 3 quyển
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-money-bill text-warning me-2"></i>
+                                            <strong>Phí trễ hạn:</strong> 10,000 VND/ngày
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <h5 class="text-primary mb-3">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                Quy định chung
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-hand-holding me-2"></i>Khi mượn sách:</h6>
+                                        <ul class="mb-0">
+                                            <li>Mang theo mã xác nhận khi đến nhận sách</li>
+                                            <li>Kiểm tra tình trạng sách trước khi nhận</li>
+                                            <li>Ghi nhận ngày mượn với thủ thư</li>
+                                            <li>Bảo quản sách cẩn thận</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="alert alert-warning">
+                                        <h6><i class="fas fa-undo me-2"></i>Khi trả sách:</h6>
+                                        <ul class="mb-0">
+                                            <li>Trả sách đúng hạn để tránh phí phạt</li>
+                                            <li>Sách phải trong tình trạng tốt</li>
+                                            <li>Thanh toán phí phạt (nếu có)</li>
+                                            <li>Nhận xác nhận trả sách từ thủ thư</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-danger">
+                                <h6><i class="fas fa-ban me-2"></i>Các trường hợp bị cấm mượn sách:</h6>
+                                <ul class="mb-0">
+                                    <li>Trả sách quá hạn nhiều lần</li>
+                                    <li>Làm hỏng hoặc mất sách</li>
+                                    <li>Không thanh toán phí phạt</li>
+                                    <li>Vi phạm quy định của thư viện</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-phone me-2"></i>Liên hệ hỗ trợ:</h6>
+                                <p class="mb-0">
+                                    <strong>Email:</strong> library@example.com<br>
+                                    <strong>Điện thoại:</strong> (024) 1234-5678<br>
+                                    <strong>Giờ làm việc:</strong> 8:00 - 17:00 (Thứ 2 - Thứ 6)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

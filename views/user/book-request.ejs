@@ -1,0 +1,125 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Yêu cầu sách mới
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Không tìm thấy sách bạn cần? Hãy gửi yêu cầu để chúng tôi xem xét bổ sung vào thư viện.
+                    </p>
+                    
+                    <form id="bookRequestForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">
+                                        <i class="fas fa-book me-1"></i>Tên sách *
+                                    </label>
+                                    <input type="text" class="form-control" id="title" name="title" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="author" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Tác giả *
+                                    </label>
+                                    <input type="text" class="form-control" id="author" name="author" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="year" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>Năm xuất bản
+                                    </label>
+                                    <input type="number" class="form-control" id="year" name="year" 
+                                           min="1900" max="<%= new Date().getFullYear() %>">
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="genre" class="form-label">
+                                        <i class="fas fa-tag me-1"></i>Thể loại
+                                    </label>
+                                    <input type="text" class="form-control" id="genre" name="genre" 
+                                           placeholder="Ví dụ: Văn học, Khoa học, Lịch sử...">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="summary" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Tóm tắt nội dung
+                            </label>
+                            <textarea class="form-control" id="summary" name="summary" rows="4" 
+                                      placeholder="Mô tả ngắn gọn về nội dung cuốn sách..."></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">
+                                <i class="fas fa-question-circle me-1"></i>Lý do yêu cầu *
+                            </label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" 
+                                      placeholder="Vì sao bạn muốn thư viện có cuốn sách này?" required></textarea>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Lưu ý:</strong> Yêu cầu của bạn sẽ được xem xét và phản hồi trong vòng 7-10 ngày làm việc.
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/books" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-paper-plane me-1"></i>Gửi yêu cầu
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('bookRequestForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await fetch('/user/request', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            this.reset();
+        } else {
+            alert(result.error || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        alert('Có lỗi xảy ra khi gửi yêu cầu');
+    }
+});
+</script>

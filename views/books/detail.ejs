@@ -1,0 +1,233 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row">
+        <!-- Book Information -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="<%= book.image %>" class="card-img-top" alt="<%= book.title %>">
+                <div class="card-body text-center">
+                    <% if (user && book.quantity > 0) { %>
+                        <a href="/books/<%= book._id %>/borrow" class="btn btn-success w-100 mb-2">
+                            <i class="fas fa-hand-holding me-1"></i>
+                            Đăng ký mượn sách
+                        </a>
+                    <% } else if (!user) { %>
+                        <a href="/auth/login" class="btn btn-primary w-100 mb-2">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            Đăng nhập để mượn sách
+                        </a>
+                    <% } else { %>
+                        <button class="btn btn-secondary w-100 mb-2" disabled>
+                            <i class="fas fa-times me-1"></i>
+                            Hết sách
+                        </button>
+                    <% } %>
+                    
+                    <div class="rating mb-2">
+                        <% if (book.averageRating > 0) { %>
+                            <% for (let i = 1; i <= 5; i++) { %>
+                                <i class="fas fa-star <%= i <= book.averageRating ? 'text-warning' : 'text-muted' %>"></i>
+                            <% } %>
+                            <div class="mt-1">
+                                <small><%= book.averageRating.toFixed(1) %>/5 (<%= book.comments.length %> đánh giá)</small>
+                            </div>
+                        <% } else { %>
+                            <small class="text-muted">Chưa có đánh giá</small>
+                        <% } %>
+                    </div>
+
+                    <% if (user && user.role === 'admin') { %>
+                        <hr>
+                        <div class="admin-actions">
+                            <a href="/admin/books/<%= book._id %>/edit" class="btn btn-info w-100 mb-2">
+                                <i class="fas fa-edit me-1"></i>Chỉnh sửa sách
+                            </a>
+                            <button class="btn btn-danger w-100" onclick="deleteBook('<%= book._id %>', '<%= book.title %>')">
+                                <i class="fas fa-trash-alt me-1"></i>Xóa sách
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Book Details -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0"><%= book.title %></h4>
+                </div>
+                <div class="card-body">
+                    <div class="book-detail-info">
+                        <p><strong>Mã sách:</strong> <%= book.bookId %></p>
+                        <p><strong>Tên sách:</strong> <%= book.title %></p>
+                        <p><strong>Tác giả:</strong> <%= book.author %></p>
+                        <p><strong>Năm xuất bản:</strong> <%= book.year %></p>
+                        <p><strong>Thể loại:</strong> <%= book.genre %></p>
+                        <p><strong>Tóm tắt:</strong></p>
+                        <p class="text-justify"><%= book.summary %></p>
+                        
+                        <p><strong>Chi nhánh còn hàng:</strong></p>
+                        <div class="row">
+                            <% availableBranches.forEach(branch => { %>
+                                <div class="col-md-3 mb-2">
+                                    <div class="alert alert-info text-center py-2">
+                                        <strong>Chi nhánh <%= branch.name %></strong><br>
+                                        <span class="badge bg-success"><%= branch.quantity %> quyển</span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                            <% if (availableBranches.length === 0) { %>
+                                <div class="col-12">
+                                    <div class="alert alert-warning text-center">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        Tất cả chi nhánh đều hết sách
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Comments Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>
+                        Bình luận và đánh giá
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Add Comment Form -->
+                    <% if (user) { %>
+                        <form id="commentForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Đánh giá:</label>
+                                <div class="star-rating">
+                                    <input type="radio" id="star5" name="rating" value="5">
+                                    <label for="star5">★</label>
+                                    <input type="radio" id="star4" name="rating" value="4">
+                                    <label for="star4">★</label>
+                                    <input type="radio" id="star3" name="rating" value="3">
+                                    <label for="star3">★</label>
+                                    <input type="radio" id="star2" name="rating" value="2">
+                                    <label for="star2">★</label>
+                                    <input type="radio" id="star1" name="rating" value="1">
+                                    <label for="star1">★</label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Bình luận:</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3" 
+                                          placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i>
+                                Gửi bình luận
+                            </button>
+                        </form>
+                        <hr>
+                    <% } else { %>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="/auth/login">Đăng nhập</a> để có thể bình luận và đánh giá sách.
+                        </div>
+                    <% } %>
+                    
+                    <!-- Comments List -->
+                    <div id="commentsList">
+                        <% if (book.comments.length === 0) { %>
+                            <p class="text-muted text-center">Chưa có bình luận nào.</p>
+                        <% } else { %>
+                            <% book.comments.forEach(comment => { %>
+                                <div class="comment-item">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong><%= comment.username %></strong>
+                                            <div class="rating mb-1">
+                                                <% for (let i = 1; i <= 5; i++) { %>
+                                                    <i class="fas fa-star <%= i <= comment.rating ? 'text-warning' : 'text-muted' %>"></i>
+                                                <% } %>
+                                            </div>
+                                            <p class="mb-1"><%= comment.comment %></p>
+                                        </div>
+                                        <small class="text-muted"><%= comment.date.toLocaleDateString('vi-VN') %></small>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('commentForm')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const rating = document.querySelector('input[name="rating"]:checked')?.value;
+    const comment = document.getElementById('comment').value;
+    
+    if (!rating || !comment.trim()) {
+        alert('Vui lòng chọn đánh giá và nhập bình luận');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/books/<%= book._id %>/comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ rating, comment })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert('Bình luận đã được thêm thành công!');
+            location.reload();
+        } else {
+            alert(result.error || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        alert('Có lỗi xảy ra khi gửi bình luận');
+    }
+});
+
+// Function to handle book deletion (for admin)
+async function deleteBook(bookId, bookTitle) {
+    if (!confirm(`Bạn có chắc chắn muốn xóa sách "${bookTitle}"? Hành động này không thể hoàn tác.`)) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin/books/${bookId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            window.location.href = '/books'; // Redirect to book list after deletion
+        } else {
+            alert(result.error || 'Có lỗi xảy ra khi xóa sách');
+        }
+    } catch (error) {
+        console.error('Error deleting book:', error);
+        alert('Có lỗi xảy ra khi xóa sách.');
+    }
+}
+</script>

@@ -1,0 +1,161 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-hand-holding me-2"></i>
+                        Đăng ký mượn sách
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Book Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <img src="<%= book.image %>" class="img-fluid rounded" alt="<%= book.title %>">
+                        </div>
+                        <div class="col-md-9">
+                            <h5><%= book.title %></h5>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-user me-1"></i>Tác giả: <%= book.author %>
+                            </p>
+                            <p class="text-muted mb-1">
+                                <i class="fas fa-barcode me-1"></i>Mã sách: <%= book.bookId %>
+                            </p>
+                            <p class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Năm xuất bản: <%= book.year %>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Borrow Form -->
+                    <form id="borrowForm">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">Họ và tên *</label>
+                            <input type="text" class="form-control" id="fullName" name="fullName" 
+                                   value="<%= user.fullName %>" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="bookCode" class="form-label">Mã sách</label>
+                            <input type="text" class="form-control" id="bookCode" 
+                                   value="<%= book.bookId %>" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="branch" class="form-label">Chi nhánh nhận sách *</label>
+                            <select class="form-select" id="branch" name="branch" required>
+                                <option value="">Chọn chi nhánh</option>
+                                <% availableBranches.forEach(branch => { %>
+                                    <option value="<%= branch.name %>">
+                                        Chi nhánh <%= branch.name %> (Còn <%= branch.quantity %> quyển)
+                                    </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="pickupDate" class="form-label">Ngày dự kiến nhận sách *</label>
+                            <input type="date" class="form-control" id="pickupDate" name="pickupDate" 
+                                   min="<%= new Date().toISOString().split('T')[0] %>" required>
+                        </div>
+                        
+                        <!-- Borrowing Rules -->
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-info-circle me-2"></i>Quy định mượn sách:</h6>
+                            <% if (user.role === 'student') { %>
+                                <p class="mb-0">• Sinh viên: Thời gian mượn tối đa 7 ngày</p>
+                            <% } else if (user.role === 'teacher') { %>
+                                <p class="mb-0">• Giảng viên: Không giới hạn thời gian, tối đa 5 quyển/năm</p>
+                            <% } else { %>
+                                <p class="mb-0">• Độc giả: Thời gian mượn tối đa 7 ngày, tối đa 3 quyển</p>
+                            <% } %>
+                        </div>
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="agreeToRules" name="agreeToRules" required>
+                            <label class="form-check-label" for="agreeToRules">
+                                Tôi đồng ý với <a href="/user/rules" target="_blank">quy định mượn sách</a> *
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/books/<%= book._id %>" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i>Xác nhận đăng ký
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Đăng ký thành công!
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p>Đăng ký mượn sách thành công!</p>
+                <p><strong>Mã xác nhận:</strong> <span id="confirmationCode" class="text-primary"></span></p>
+                <p class="text-muted">Vui lòng lưu lại mã xác nhận để nhận sách tại chi nhánh.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="/user/cart" class="btn btn-primary">
+                    <i class="fas fa-shopping-cart me-1"></i>Xem giỏ hàng
+                </a>
+                <a href="/books" class="btn btn-secondary">
+                    <i class="fas fa-book me-1"></i>Tiếp tục tìm sách
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('borrowForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const response = await fetch(`/books/<%= book._id %>/borrow`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('confirmationCode').textContent = result.confirmationCode;
+            new bootstrap.Modal(document.getElementById('successModal')).show();
+        } else {
+            alert(result.error || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        alert('Có lỗi xảy ra khi đăng ký mượn sách');
+    }
+});
+
+// Set minimum pickup date to tomorrow
+document.addEventListener('DOMContentLoaded', function() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('pickupDate').min = tomorrow.toISOString().split('T')[0];
+});
+</script>

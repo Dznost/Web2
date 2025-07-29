@@ -1,0 +1,80 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Đăng ký tài khoản
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <% if (error) { %>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    
+                    <form method="POST" action="/auth/register">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">
+                                <i class="fas fa-id-card me-1"></i>Họ và tên *
+                            </label>
+                            <input type="text" class="form-control" id="fullName" name="fullName" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user me-1"></i>Tên đăng nhập *
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="form-text">Tối thiểu 3 ký tự</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email *
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Mật khẩu *
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="form-text">Tối thiểu 6 ký tự</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="role" class="form-label">
+                                <i class="fas fa-user-tag me-1"></i>Vai trò *
+                            </label>
+                            <select class="form-select" id="role" name="role" required>
+                                <option value="">Chọn vai trò</option>
+                                <option value="reader">Độc giả</option>
+                                <option value="student">Sinh viên</option>
+                                <option value="teacher">Giảng viên</option>
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-user-plus me-1"></i>Đăng ký
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Đã có tài khoản? 
+                            <a href="/auth/login" class="text-decoration-none">Đăng nhập</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

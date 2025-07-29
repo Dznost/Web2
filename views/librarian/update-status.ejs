@@ -1,0 +1,183 @@
+﻿<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <% if (type === "all") { %>
+                <div class="alert alert-info mb-4">Vui lòng chọn chức năng từ menu bên trên.</div>
+            <% } %>
+
+            <% if (type === "all" || type === "check") { %>
+            <!-- Form kiểm tra mã xác nhận -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Kiểm tra mã xác nhận</h4>
+                </div>
+                <div class="card-body">
+                    <form id="checkCodeForm">
+                        <div class="mb-3">
+                            <label for="confirmationCode" class="form-label">Mã xác nhận *</label>
+                            <input type="text" class="form-control" id="confirmationCode" name="confirmationCode" required>
+                        </div>
+                        <button type="submit" class="btn btn-info">Kiểm tra mã</button>
+                    </form>
+                    <div id="checkCodeResult" class="mt-2"></div>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (type === "borrow") { %>
+            <!-- Form xác nhận mượn sách -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Xác nhận mượn sách</h4>
+                </div>
+                <div class="card-body">
+                    <form id="confirmBorrowForm">
+                        <div class="mb-3">
+                            <label for="confirmationCodeBorrow" class="form-label">Mã xác nhận *</label>
+                            <input type="text" class="form-control" id="confirmationCodeBorrow" name="confirmationCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="borrowDate" class="form-label">Ngày mượn *</label>
+                            <input type="date" class="form-control" id="borrowDate" name="borrowDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="returnDate" class="form-label">Ngày trả dự kiến *</label>
+                            <input type="date" class="form-control" id="returnDate" name="returnDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notesBorrow" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="notesBorrow" name="notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Xác nhận mượn sách</button>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (type === "return") { %>
+            <!-- Form xác nhận trả sách -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Xác nhận trả sách</h4>
+                </div>
+                <div class="card-body">
+                    <form id="confirmReturnForm">
+                        <div class="mb-3">
+                            <label for="confirmationCodeReturn" class="form-label">Mã xác nhận *</label>
+                            <input type="text" class="form-control" id="confirmationCodeReturn" name="confirmationCode" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="actualReturnDate" class="form-label">Ngày trả thực tế *</label>
+                            <input type="date" class="form-control" id="actualReturnDate" name="actualReturnDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fine" class="form-label">Phí phạt (VND)</label>
+                            <input type="number" class="form-control" id="fine" name="fine" min="0" value="0">
+                        </div>
+                        <div class="mb-3">
+                            <label for="notesReturn" class="form-label">Ghi chú</label>
+                            <textarea class="form-control" id="notesReturn" name="notes"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Xác nhận trả sách</button>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default dates for borrow/return forms if present
+    const borrowDate = document.getElementById('borrowDate');
+    if (borrowDate) {
+        const today = new Date().toISOString().split('T')[0];
+        borrowDate.value = today;
+        const returnDate = document.getElementById('returnDate');
+        if (returnDate) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            returnDate.value = tomorrow.toISOString().split('T')[0];
+        }
+    }
+    const actualReturnDate = document.getElementById('actualReturnDate');
+    if (actualReturnDate) {
+        actualReturnDate.value = new Date().toISOString().split('T')[0];
+    }
+
+    // Kiểm tra mã xác nhận
+    const checkCodeForm = document.getElementById('checkCodeForm');
+    if (checkCodeForm) {
+        checkCodeForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const code = document.getElementById('confirmationCode').value;
+            const resultDiv = document.getElementById('checkCodeResult');
+            resultDiv.innerHTML = 'Đang kiểm tra...';
+            try {
+                const res = await fetch('/librarian/check-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confirmationCode: code })
+                });
+                const data = await res.json();
+                if (data.borrowRequest) {
+                    resultDiv.innerHTML = `<span class="text-success">Mã hợp lệ. Tên sách: ${data.borrowRequest.bookId.title} | ID: ${data.borrowRequest._id}</span>`;
+                } else {
+                    resultDiv.innerHTML = `<span class="text-danger">${data.error || 'Không tìm thấy mã.'}</span>`;
+                }
+            } catch {
+                resultDiv.innerHTML = '<span class="text-danger">Có lỗi xảy ra.</span>';
+            }
+        });
+    }
+
+    // Xác nhận mượn sách
+    const confirmBorrowForm = document.getElementById('confirmBorrowForm');
+    if (confirmBorrowForm) {
+        confirmBorrowForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            try {
+                const res = await fetch('/librarian/confirm-borrow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message || result.error || 'Có lỗi xảy ra');
+                if (result.success) this.reset();
+            } catch {
+                alert('Có lỗi xảy ra khi xác nhận mượn sách.');
+            }
+        });
+    }
+
+    // Xác nhận trả sách
+    const confirmReturnForm = document.getElementById('confirmReturnForm');
+    if (confirmReturnForm) {
+        confirmReturnForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            try {
+                const res = await fetch('/librarian/confirm-return', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                alert(result.message || result.error || 'Có lỗi xảy ra');
+                if (result.success) this.reset();
+            } catch {
+                alert('Có lỗi xảy ra khi xác nhận trả sách.');
+            }
+        });
+    }
+});
+</script>

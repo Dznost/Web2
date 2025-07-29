@@ -1,0 +1,228 @@
+﻿<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>
+                        Chỉnh sửa sách: <%= book.title %>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form id="editBookForm" enctype="multipart/form-data">
+                        <input type="hidden" name="_method" value="PUT">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="bookId" class="form-label">
+                                        <i class="fas fa-barcode me-1"></i>Mã sách
+                                    </label>
+                                    <input type="text" class="form-control" id="bookId" name="bookId" 
+                                           value="<%= book.bookId %>" readonly disabled>
+                                    <small class="form-text text-muted">Mã sách không thể thay đổi.</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">
+                                        <i class="fas fa-book me-1"></i>Tên sách *
+                                    </label>
+                                    <input type="text" class="form-control" id="title" name="title" 
+                                           value="<%= book.title %>" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="author" class="form-label">
+                                        <i class="fas fa-user me-1"></i>Tác giả *
+                                    </label>
+                                    <input type="text" class="form-control" id="author" name="author" 
+                                           value="<%= book.author %>" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="year" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>Năm xuất bản *
+                                    </label>
+                                    <input type="number" class="form-control" id="year" name="year" 
+                                           min="1900" max="<%= new Date().getFullYear() %>" 
+                                           value="<%= book.year %>" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="genre" class="form-label">
+                                        <i class="fas fa-tag me-1"></i>Thể loại *
+                                    </label>
+                                    <input type="text" class="form-control" id="genre" name="genre" 
+                                           value="<%= book.genre %>" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="summary" class="form-label">
+                                <i class="fas fa-align-left me-1"></i>Tóm tắt *
+                            </label>
+                            <textarea class="form-control" id="summary" name="summary" rows="4" required><%= book.summary %></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="image" class="form-label">
+                                <i class="fas fa-image me-1"></i>Ảnh bìa sách
+                            </label>
+                            <% if (book.image && book.image !== '/images/default-book.jpg') { %>
+                                <div class="mb-2">
+                                    <img src="<%= book.image %>" alt="Current Book Cover" style="max-width: 150px; height: auto; border-radius: 8px;">
+                                    <small class="text-muted ms-2">Ảnh hiện tại</small>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="removeImage" name="removeImage">
+                                    <label class="form-check-label" for="removeImage">
+                                        Xóa ảnh hiện tại và dùng ảnh mặc định
+                                    </label>
+                                </div>
+                            <% } else { %>
+                                <div class="mb-2">
+                                    <small class="text-muted">Đang sử dụng ảnh mặc định.</small>
+                                </div>
+                            <% } %>
+                            <input type="file" class="form-control mt-2" id="image" name="image" accept="image/*">
+                            <div class="form-text">Chọn ảnh mới để thay thế. Chấp nhận file JPG, PNG. Tối đa 5MB.</div>
+                        </div>
+                        
+                        <div class="card border-info mb-3">
+                            <div class="card-header bg-info text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-warehouse me-2"></i>
+                                    Phân bố theo chi nhánh
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="branchA" class="form-label">Chi nhánh A</label>
+                                            <input type="number" class="form-control" id="branchA" name="branchA" 
+                                                   min="0" value="<%= book.branches.A %>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="branchB" class="form-label">Chi nhánh B</label>
+                                            <input type="number" class="form-control" id="branchB" name="branchB" 
+                                                   min="0" value="<%= book.branches.B %>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="branchC" class="form-label">Chi nhánh C</label>
+                                            <input type="number" class="form-control" id="branchC" name="branchC" 
+                                                   min="0" value="<%= book.branches.C %>">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="mb-3">
+                                            <label for="branchD" class="form-label">Chi nhánh D</label>
+                                            <input type="number" class="form-control" id="branchD" name="branchD" 
+                                                   min="0" value="<%= book.branches.D %>">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info mb-0">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Tổng số sách: <span id="totalBooks">0</span> quyển
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="/books/<%= book._id %>" class="btn btn-secondary me-md-2">
+                                <i class="fas fa-arrow-left me-1"></i>Hủy
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate total books
+    function updateTotal() {
+        const branchA = parseInt(document.getElementById('branchA').value) || 0;
+        const branchB = parseInt(document.getElementById('branchB').value) || 0;
+        const branchC = parseInt(document.getElementById('branchC').value) || 0;
+        const branchD = parseInt(document.getElementById('branchD').value) || 0;
+        
+        const total = branchA + branchB + branchC + branchD;
+        document.getElementById('totalBooks').textContent = total;
+    }
+
+    // Add event listeners
+    document.getElementById('branchA').addEventListener('input', updateTotal);
+    document.getElementById('branchB').addEventListener('input', updateTotal);
+    document.getElementById('branchC').addEventListener('input', updateTotal);
+    document.getElementById('branchD').addEventListener('input', updateTotal);
+
+    // Initial calculation
+    updateTotal();
+
+    // Form submission
+    document.getElementById('editBookForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const bookId = '<%= book._id %>';
+
+        // Handle image removal checkbox
+        const removeImageCheckbox = document.getElementById('removeImage');
+        if (removeImageCheckbox && removeImageCheckbox.checked) {
+            formData.append('existingImage', 'default'); // Signal to controller to use default image
+            formData.delete('image'); // Remove any newly selected file if checkbox is checked
+        } else if (!formData.get('image') && '<%= book.image %>' !== '/images/default-book.jpg') {
+            // If no new image is selected and not removing, keep existing image path
+            formData.append('existingImage', '<%= book.image %>');
+        }
+        
+        try {
+            const response = await fetch(`/admin/books/${bookId}`, {
+                method: 'PUT',
+                body: formData // FormData will automatically set Content-Type: multipart/form-data
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(result.message);
+                window.location.href = `/books/${bookId}`; // Redirect back to book detail page
+            } else {
+                alert(result.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            console.error('Error updating book:', error);
+            alert('Có lỗi xảy ra khi cập nhật sách');
+        }
+    });
+});
+</script>

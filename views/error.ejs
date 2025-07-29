@@ -1,0 +1,28 @@
+<%- include('layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <%= title || 'Lỗi' %>
+                    </h4>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-circle fa-4x text-danger mb-3"></i>
+                    <p class="lead"><%= message || 'Đã xảy ra lỗi không mong muốn' %></p>
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary me-2">
+                            <i class="fas fa-home me-1"></i>Về trang chủ
+                        </a>
+                        <button onclick="history.back()" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Quay lại
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

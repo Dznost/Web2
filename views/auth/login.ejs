@@ -1,0 +1,59 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Đăng nhập
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <% if (error) { %>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <%= error %>
+                        </div>
+                    <% } %>
+                    
+                    <% if (typeof success !== 'undefined') { %>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Đăng ký thành công! Vui lòng đăng nhập.
+                        </div>
+                    <% } %>
+                    
+                    <form method="POST" action="/auth/login">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user me-1"></i>Tên đăng nhập
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Mật khẩu
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Chưa có tài khoản? 
+                            <a href="/auth/register" class="text-decoration-none">Đăng ký ngay</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

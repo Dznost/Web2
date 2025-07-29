@@ -1,0 +1,119 @@
+<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Giỏ hàng của tôi
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <% if (borrowRequests.length === 0) { %>
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Giỏ hàng trống</h5>
+                            <p class="text-muted">Bạn chưa đăng ký mượn sách nào.</p>
+                            <a href="/books" class="btn btn-primary">
+                                <i class="fas fa-book me-1"></i>Tìm sách
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Sách</th>
+                                        <th>Mã xác nhận</th>
+                                        <th>Chi nhánh</th>
+                                        <th>Ngày đăng ký</th>
+                                        <th>Ngày nhận</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% borrowRequests.forEach(request => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="<%= request.bookId?.image || '/images/default-book.jpg' %>" 
+                                                         class="me-3" style="width: 50px; height: 60px; object-fit: cover;">
+                                                    <div>
+                                                        <h6 class="mb-0"><%= request.bookTitle %></h6>
+                                                        <small class="text-muted">Mã: <%= request.bookCode %></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <code class="bg-light p-1 rounded"><%= request.confirmationCode %></code>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">Chi nhánh <%= request.branch %></span>
+                                            </td>
+                                            <td><%= request.requestDate.toLocaleDateString('vi-VN') %></td>
+                                            <td><%= request.pickupDate.toLocaleDateString('vi-VN') %></td>
+                                            <td>
+                                                <% if (request.status === 'pending') { %>
+                                                    <span class="badge bg-warning">Chờ xử lý</span>
+                                                <% } else if (request.status === 'approved') { %>
+                                                    <span class="badge bg-info">Đã duyệt</span>
+                                                <% } else if (request.status === 'borrowed') { %>
+                                                    <span class="badge bg-success">Đã mượn</span>
+                                                <% } else if (request.status === 'returned') { %>
+                                                    <span class="badge bg-secondary">Đã trả</span>
+                                                <% } else if (request.status === 'cancelled') { %>
+                                                    <span class="badge bg-danger">Đã hủy</span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <% if (request.status === 'pending') { %>
+                                                    <button class="btn btn-sm btn-outline-danger" 
+                                                            onclick="cancelRequest('<%= request._id %>')">
+                                                        <i class="fas fa-times"></i> Hủy
+                                                    </button>
+                                                <% } else if (request.status === 'returned' && request.fine > 0) { %>
+                                                    <span class="text-danger">
+                                                        <i class="fas fa-exclamation-triangle"></i>
+                                                        Phí: <%= request.fine.toLocaleString() %> VND
+                                                    </span>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function cancelRequest(requestId) {
+    if (!confirm('Bạn có chắc chắn muốn hủy yêu cầu mượn sách này?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/user/borrow/${requestId}`, {
+            method: 'DELETE'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            location.reload();
+        } else {
+            alert(result.error || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        alert('Có lỗi xảy ra khi hủy yêu cầu');
+    }
+}
+</script>

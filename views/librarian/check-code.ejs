@@ -1,0 +1,180 @@
+﻿<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-qrcode me-2"></i>
+                        Kiểm tra mã xác nhận
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Nhập mã xác nhận mượn sách để xem thông tin chi tiết.
+                    </p>
+
+                    <form id="checkCodeForm" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="confirmationCode" name="confirmationCode" 
+                                   placeholder="Nhập mã xác nhận (ví dụ: BR16789...)" required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-1"></i>Kiểm tra
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="borrowRequestDetails" style="display: none;">
+                        <h5 class="mb-3">Thông tin yêu cầu mượn:</h5>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img id="bookImage" src="/placeholder.svg" class="img-fluid rounded mb-3" alt="Book Image">
+                            </div>
+                            <div class="col-md-8">
+                                <p><strong>Mã xác nhận:</strong> <span id="detailConfirmationCode"></span></p>
+                                <p><strong>Người yêu cầu:</strong> <span id="detailFullName"></span> (<span id="detailUsername"></span>)</p>
+                                <p><strong>Tên sách:</strong> <span id="detailBookTitle"></span> (<span id="detailBookCode"></span>)</p>
+                                <p><strong>Chi nhánh:</strong> <span id="detailBranch"></span></p>
+                                <p><strong>Ngày yêu cầu:</strong> <span id="detailRequestDate"></span></p>
+                                <p><strong>Ngày nhận dự kiến:</strong> <span id="detailPickupDate"></span></p>
+                                <p><strong>Trạng thái:</strong> <span id="detailStatus"></span></p>
+                                <p id="detailBorrowDateRow" style="display: none;"><strong>Ngày mượn:</strong> <span id="detailBorrowDate"></span></p>
+                                <p id="detailReturnDateRow" style="display: none;"><strong>Ngày trả dự kiến:</strong> <span id="detailReturnDate"></span></p>
+                                <p id="detailActualReturnDateRow" style="display: none;"><strong>Ngày trả thực tế:</strong> <span id="detailActualReturnDate"></span></p>
+                                <p id="detailFineRow" style="display: none;"><strong>Phí phạt:</strong> <span id="detailFine"></span></p>
+                                <p id="detailNotesRow" style="display: none;"><strong>Ghi chú:</strong> <span id="detailNotes"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="noResultAlert" class="alert alert-warning text-center mt-4" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Không tìm thấy mã xác nhận hoặc mã không hợp lệ.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkCodeForm = document.getElementById('checkCodeForm');
+    const confirmationCodeInput = document.getElementById('confirmationCode');
+    const borrowRequestDetails = document.getElementById('borrowRequestDetails');
+    const noResultAlert = document.getElementById('noResultAlert');
+
+    const bookImage = document.getElementById('bookImage');
+    const detailConfirmationCode = document.getElementById('detailConfirmationCode');
+    const detailFullName = document.getElementById('detailFullName');
+    const detailUsername = document.getElementById('detailUsername');
+    const detailBookTitle = document.getElementById('detailBookTitle');
+    const detailBookCode = document.getElementById('detailBookCode');
+    const detailBranch = document.getElementById('detailBranch');
+    const detailRequestDate = document.getElementById('detailRequestDate');
+    const detailPickupDate = document.getElementById('detailPickupDate');
+    const detailStatus = document.getElementById('detailStatus');
+    const detailBorrowDateRow = document.getElementById('detailBorrowDateRow');
+    const detailBorrowDate = document.getElementById('detailBorrowDate');
+    const detailReturnDateRow = document.getElementById('detailReturnDateRow');
+    const detailReturnDate = document.getElementById('detailReturnDate');
+    const detailActualReturnDateRow = document.getElementById('detailActualReturnDateRow');
+    const detailActualReturnDate = document.getElementById('detailActualReturnDate');
+    const detailFineRow = document.getElementById('detailFineRow');
+    const detailFine = document.getElementById('detailFine');
+    const detailNotesRow = document.getElementById('detailNotesRow');
+    const detailNotes = document.getElementById('detailNotes');
+
+    checkCodeForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const confirmationCode = confirmationCodeInput.value.trim();
+        
+        borrowRequestDetails.style.display = 'none';
+        noResultAlert.style.display = 'none';
+
+        if (!confirmationCode) {
+            noResultAlert.style.display = 'block';
+            noResultAlert.textContent = 'Vui lòng nhập mã xác nhận.';
+            return;
+        }
+
+        try {
+            const response = await fetch('/librarian/check-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ confirmationCode })
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.borrowRequest) {
+                const req = result.borrowRequest;
+                bookImage.src = req.bookId?.image || '/images/default-book.jpg';
+                detailConfirmationCode.textContent = req.confirmationCode;
+                detailFullName.textContent = req.userId?.fullName || 'N/A';
+                detailUsername.textContent = req.userId?.username || 'N/A';
+                detailBookTitle.textContent = req.bookTitle;
+                detailBookCode.textContent = req.bookCode;
+                detailBranch.innerHTML = `<span class="badge bg-info">Chi nhánh ${req.branch}</span>`;
+                detailRequestDate.textContent = new Date(req.requestDate).toLocaleDateString('vi-VN');
+                detailPickupDate.textContent = new Date(req.pickupDate).toLocaleDateString('vi-VN');
+                
+                let statusClass = '';
+                let statusText = '';
+                switch(req.status) {
+                    case 'pending': statusClass = 'warning'; statusText = 'Chờ xử lý'; break;
+                    case 'approved': statusClass = 'info'; statusText = 'Đã duyệt'; break;
+                    case 'borrowed': statusClass = 'success'; statusText = 'Đã mượn'; break;
+                    case 'returned': statusClass = 'secondary'; statusText = 'Đã trả'; break;
+                    case 'cancelled': statusClass = 'danger'; statusText = 'Đã hủy'; break;
+                    default: statusClass = 'light'; statusText = req.status;
+                }
+                detailStatus.innerHTML = `<span class="badge bg-${statusClass}">${statusText}</span>`;
+
+                // Show/hide conditional fields
+                if (req.borrowDate) {
+                    detailBorrowDate.textContent = new Date(req.borrowDate).toLocaleDateString('vi-VN');
+                    detailBorrowDateRow.style.display = 'block';
+                } else {
+                    detailBorrowDateRow.style.display = 'none';
+                }
+                if (req.returnDate) {
+                    detailReturnDate.textContent = new Date(req.returnDate).toLocaleDateString('vi-VN');
+                    detailReturnDateRow.style.display = 'block';
+                } else {
+                    detailReturnDateRow.style.display = 'none';
+                }
+                if (req.actualReturnDate) {
+                    detailActualReturnDate.textContent = new Date(req.actualReturnDate).toLocaleDateString('vi-VN');
+                    detailActualReturnDateRow.style.display = 'block';
+                } else {
+                    detailActualReturnDateRow.style.display = 'none';
+                }
+                if (req.fine && req.fine > 0) {
+                    detailFine.textContent = req.fine.toLocaleString('vi-VN') + ' VND';
+                    detailFineRow.style.display = 'block';
+                } else {
+                    detailFineRow.style.display = 'none';
+                }
+                if (req.notes) {
+                    detailNotes.textContent = req.notes;
+                    detailNotesRow.style.display = 'block';
+                } else {
+                    detailNotesRow.style.display = 'none';
+                }
+
+                borrowRequestDetails.style.display = 'block';
+            } else {
+                noResultAlert.style.display = 'block';
+                noResultAlert.textContent = result.error || 'Không tìm thấy mã xác nhận hoặc có lỗi xảy ra.';
+            }
+        } catch (error) {
+            console.error('Error checking confirmation code:', error);
+            noResultAlert.style.display = 'block';
+            noResultAlert.textContent = 'Có lỗi xảy ra khi kiểm tra mã xác nhận.';
+        }
+    });
+});
+</script>

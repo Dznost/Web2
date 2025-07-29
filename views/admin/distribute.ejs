@@ -1,0 +1,200 @@
+﻿<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-share-alt me-2"></i>
+                        Phân bố sách
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Cập nhật số lượng sách hiện có tại các chi nhánh.
+                    </p>
+
+                    <div class="mb-3">
+                        <label for="bookSelect" class="form-label">Chọn sách</label>
+                        <select class="form-select" id="bookSelect">
+                            <option value="">-- Chọn sách để cập nhật --</option>
+                            <% books.forEach(book => { %>
+                                <option value="<%= book._id %>"
+                                        data-branch-a="<%= book.branches.A %>"
+                                        data-branch-b="<%= book.branches.B %>"
+                                        data-branch-c="<%= book.branches.C %>"
+                                        data-branch-d="<%= book.branches.D %>">
+                                    <%= book.title %> (<%= book.bookId %>)
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <form id="distributeForm" style="display: none;">
+                        <input type="hidden" id="selectedBookId" name="bookId">
+                        <h5 class="mt-4 mb-3">Số lượng tại các chi nhánh:</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="branchA" class="form-label">Chi nhánh A</label>
+                                    <input type="number" class="form-control" id="branchA" name="branchA" min="0" value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="branchB" class="form-label">Chi nhánh B</label>
+                                    <input type="number" class="form-control" id="branchB" name="branchB" min="0" value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="branchC" class="form-label">Chi nhánh C</label>
+                                    <input type="number" class="form-control" id="branchC" name="branchC" min="0" value="0">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="branchD" class="form-label">Chi nhánh D</label>
+                                    <input type="number" class="form-control" id="branchD" name="branchD" min="0" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mb-3">
+                            <small>
+                                <i class="fas fa-info-circle me-1"></i>
+                                Tổng số sách: <span id="totalBooks">0</span> quyển
+                            </small>
+                        </div>
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Cập nhật phân bố
+                            </button>
+                        </div>
+                    </form>
+                    <div id="noBookSelectedAlert" class="alert alert-warning mt-4 text-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Vui lòng chọn một cuốn sách để cập nhật phân bố.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bookSelect = document.getElementById('bookSelect');
+    const distributeForm = document.getElementById('distributeForm');
+    const selectedBookId = document.getElementById('selectedBookId');
+    const branchAInput = document.getElementById('branchA');
+    const branchBInput = document.getElementById('branchB');
+    const branchCInput = document.getElementById('branchC');
+    const branchDInput = document.getElementById('branchD');
+    const totalBooksSpan = document.getElementById('totalBooks');
+    const noBookSelectedAlert = document.getElementById('noBookSelectedAlert');
+
+    function updateTotal() {
+        const branchA = parseInt(branchAInput.value) || 0;
+        const branchB = parseInt(branchBInput.value) || 0;
+        const branchC = parseInt(branchCInput.value) || 0;
+        const branchD = parseInt(branchDInput.value) || 0;
+        totalBooksSpan.textContent = branchA + branchB + branchC + branchD;
+    }
+
+    bookSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            selectedBookId.value = selectedOption.value;
+            branchAInput.value = selectedOption.dataset.branchA;
+            branchBInput.value = selectedOption.dataset.branchB;
+            branchCInput.value = selectedOption.dataset.branchC;
+            branchDInput.value = selectedOption.dataset.branchD;
+            updateTotal();
+            distributeForm.style.display = 'block';
+            noBookSelectedAlert.style.display = 'none';
+        } else {
+            distributeForm.style.display = 'none';
+            noBookSelectedAlert.style.display = 'block';
+            selectedBookId.value = '';
+            branchAInput.value = 0;
+            branchBInput.value = 0;
+            branchCInput.value = 0;
+            branchDInput.value = 0;
+            updateTotal();
+        }
+    });
+
+    branchAInput.addEventListener('input', updateTotal);
+    branchBInput.addEventListener('input', updateTotal);
+    branchCInput.addEventListener('input', updateTotal);
+    branchDInput.addEventListener('input', updateTotal);
+
+    distributeForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData);
+        
+        try {
+            const response = await fetch('/admin/distribute', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(result.message);
+                // Update the data-attributes of the selected option
+                const selectedOption = bookSelect.options[bookSelect.selectedIndex];
+                selectedOption.dataset.branchA = branchAInput.value;
+                selectedOption.dataset.branchB = branchBInput.value;
+                selectedOption.dataset.branchC = branchCInput.value;
+                selectedOption.dataset.branchD = branchDInput.value;
+            } else {
+                alert(result.error || 'Có lỗi xảy ra');
+            }
+        } catch (error) {
+            alert('Có lỗi xảy ra khi cập nhật phân bố sách');
+        }
+    });
+
+    async function deleteBook(bookId, bookTitle) {
+        if (!confirm(`Bạn có chắc chắn muốn xóa sách "${bookTitle}"? Hành động này không thể hoàn tác.`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/books/${bookId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(result.message);
+                location.reload(); // Tải lại trang để cập nhật danh sách
+            } else {
+                alert(result.error || 'Có lỗi xảy ra khi xóa sách');
+            }
+        } catch (error) {
+            console.error('Error deleting book:', error);
+            alert('Có lỗi xảy ra khi xóa sách.');
+        }
+    }
+
+    // Initial state
+    updateTotal();
+    if (!bookSelect.value) {
+        distributeForm.style.display = 'none';
+        noBookSelectedAlert.style.display = 'block';
+    }
+});
+</script>

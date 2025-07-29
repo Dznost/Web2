@@ -1,0 +1,262 @@
+﻿<%- include('../layouts/main') %>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-ban me-2"></i>
+                        Cấm người dùng
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Quản lý trạng thái cấm/bỏ cấm người dùng.
+                    </p>
+
+                    <div class="mb-3">
+                        <label for="userSelect" class="form-label">Chọn người dùng</label>
+                        <select class="form-select" id="userSelect">
+                            <option value="">-- Chọn người dùng --</option>
+                            <% users.forEach(user => { %>
+                                <option value="<%= user._id %>"
+                                        data-banned-until="<%= user.bannedUntil ? user.bannedUntil.toISOString().split('T')[0] : '' %>"
+                                        data-banned-reason="<%= user.bannedReason || '' %>">
+                                    <%= user.fullName %> (<%= user.username %>) - <%= user.role %>
+                                    <% if (user.isBanned()) { %>
+                                        <span class="badge bg-danger ms-2">Đang bị cấm</span>
+                                    <% } %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div id="userDetails" style="display: none;">
+                        <h5 class="mt-4 mb-3">Thông tin người dùng:</h5>
+                        <p><strong>Họ và tên:</strong> <span id="detailFullName"></span></p>
+                        <p><strong>Tên đăng nhập:</strong> <span id="detailUsername"></span></p>
+                        <p><strong>Email:</strong> <span id="detailEmail"></span></p>
+                        <p><strong>Vai trò:</strong> <span id="detailRole"></span></p>
+                        <p><strong>Trạng thái cấm:</strong> <span id="detailBannedStatus"></span></p>
+                        <p id="detailBannedReasonRow" style="display: none;"><strong>Lý do cấm:</strong> <span id="detailBannedReason"></span></p>
+                        <p id="detailBannedUntilRow" style="display: none;"><strong>Cấm đến:</strong> <span id="detailBannedUntil"></span></p>
+
+                        <h5 class="mt-4 mb-3">Lịch sử mượn sách:</h5>
+                        <div id="borrowHistory" class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Sách</th>
+                                        <th>Ngày mượn</th>
+                                        <th>Ngày trả dự kiến</th>
+                                        <th>Ngày trả thực tế</th>
+                                        <th>Trạng thái</th>
+                                        <th>Phí phạt</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <tr><td colspan="6" class="text-center text-muted">Đang tải lịch sử...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h5 class="mt-4 mb-3">Thao tác:</h5>
+                        <form id="banForm" class="mb-3" style="display: none;">
+                            <input type="hidden" id="banUserId">
+                            <div class="mb-3">
+                                <label for="banDays" class="form-label">Số ngày cấm</label>
+                                <input type="number" class="form-control" id="banDays" name="days" min="1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="banReason" class="form-label">Lý do cấm</label>
+                                <textarea class="form-control" id="banReason" name="reason" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-ban me-1"></i>Cấm người dùng
+                            </button>
+                        </form>
+                        <button id="unbanButton" class="btn btn-success" style="display: none;">
+                            <i class="fas fa-check-circle me-1"></i>Bỏ cấm người dùng
+                        </button>
+                    </div>
+                    <div id="noUserSelectedAlert" class="alert alert-warning mt-4 text-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Vui lòng chọn một người dùng để xem thông tin và quản lý.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userSelect = document.getElementById('userSelect');
+    const userDetails = document.getElementById('userDetails');
+    const detailFullName = document.getElementById('detailFullName');
+    const detailUsername = document.getElementById('detailUsername');
+    const detailEmail = document.getElementById('detailEmail');
+    const detailRole = document.getElementById('detailRole');
+    const detailBannedStatus = document.getElementById('detailBannedStatus');
+    const detailBannedReasonRow = document.getElementById('detailBannedReasonRow');
+    const detailBannedReason = document.getElementById('detailBannedReason');
+    const detailBannedUntilRow = document.getElementById('detailBannedUntilRow');
+    const detailBannedUntil = document.getElementById('detailBannedUntil');
+    const historyTableBody = document.getElementById('historyTableBody');
+    const banForm = document.getElementById('banForm');
+    const banUserId = document.getElementById('banUserId');
+    const banDaysInput = document.getElementById('banDays');
+    const banReasonInput = document.getElementById('banReason');
+    const unbanButton = document.getElementById('unbanButton');
+    const noUserSelectedAlert = document.getElementById('noUserSelectedAlert');
+
+    userSelect.addEventListener('change', async function() {
+        const userId = this.value;
+        if (!userId) {
+            userDetails.style.display = 'none';
+            noUserSelectedAlert.style.display = 'block';
+            return;
+        }
+
+        userDetails.style.display = 'block';
+        noUserSelectedAlert.style.display = 'none';
+        banUserId.value = userId;
+        historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Đang tải lịch sử...</td></tr>';
+
+        try {
+            const response = await fetch(`/admin/user/${userId}/history`);
+            const data = await response.json();
+
+            if (data.user) {
+                detailFullName.textContent = data.user.fullName;
+                detailUsername.textContent = data.user.username;
+                detailEmail.textContent = data.user.email;
+                detailRole.textContent = data.user.role;
+
+                if (data.user.bannedUntil && new Date(data.user.bannedUntil) > new Date()) {
+                    detailBannedStatus.innerHTML = '<span class="badge bg-danger">Đang bị cấm</span>';
+                    detailBannedUntil.textContent = new Date(data.user.bannedUntil).toLocaleDateString('vi-VN');
+                    detailBannedReason.textContent = data.user.bannedReason || 'Không có';
+                    detailBannedUntilRow.style.display = 'block';
+                    detailBannedReasonRow.style.display = 'block';
+                    banForm.style.display = 'none';
+                    unbanButton.style.display = 'block';
+                } else {
+                    detailBannedStatus.innerHTML = '<span class="badge bg-success">Hoạt động</span>';
+                    detailBannedUntilRow.style.display = 'none';
+                    detailBannedReasonRow.style.display = 'none';
+                    banForm.style.display = 'block';
+                    unbanButton.style.display = 'none';
+                    banDaysInput.value = '';
+                    banReasonInput.value = '';
+                }
+
+                historyTableBody.innerHTML = '';
+                if (data.borrowRequests && data.borrowRequests.length > 0) {
+                    data.borrowRequests.forEach(req => {
+                        const row = `
+                            <tr>
+                                <td>${req.bookTitle} (${req.bookCode})</td>
+                                <td>${req.borrowDate ? new Date(req.borrowDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                <td>${req.returnDate ? new Date(req.returnDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                <td>${req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
+                                <td><span class="badge bg-${getStatusBadgeClass(req.status)}">${getStatusText(req.status)}</span></td>
+                                <td>${req.fine ? req.fine.toLocaleString('vi-VN') + ' VND' : '0 VND'}</td>
+                            </tr>
+                        `;
+                        historyTableBody.insertAdjacentHTML('beforeend', row);
+                    });
+                } else {
+                    historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Chưa có lịch sử mượn sách.</td></tr>';
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching user history:', error);
+            alert('Có lỗi xảy ra khi tải thông tin người dùng.');
+            historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Lỗi tải dữ liệu.</td></tr>';
+        }
+    });
+
+    banForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const userId = banUserId.value;
+        const days = banDaysInput.value;
+        const reason = banReasonInput.value;
+
+        if (!confirm(`Bạn có chắc chắn muốn cấm người dùng này trong ${days} ngày?`)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/user/${userId}/ban`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ days, reason })
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                location.reload();
+            } else {
+                alert(result.error || 'Có lỗi xảy ra khi cấm người dùng.');
+            }
+        } catch (error) {
+            alert('Có lỗi xảy ra khi cấm người dùng.');
+        }
+    });
+
+    unbanButton.addEventListener('click', async function() {
+        const userId = banUserId.value;
+        if (!confirm('Bạn có chắc chắn muốn bỏ cấm người dùng này?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/admin/user/${userId}/unban`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert(result.message);
+                location.reload();
+            } else {
+                alert(result.error || 'Có lỗi xảy ra khi bỏ cấm người dùng.');
+            }
+        } catch (error) {
+            alert('Có lỗi xảy ra khi bỏ cấm người dùng.');
+        }
+    });
+
+    function getStatusBadgeClass(status) {
+        switch (status) {
+            case 'pending': return 'warning';
+            case 'approved': return 'info';
+            case 'borrowed': return 'success';
+            case 'returned': return 'secondary';
+            case 'cancelled': return 'danger';
+            case 'overdue': return 'danger';
+            default: return 'light';
+        }
+    }
+
+    function getStatusText(status) {
+        switch (status) {
+            case 'pending': return 'Chờ xử lý';
+            case 'approved': return 'Đã duyệt';
+            case 'borrowed': return 'Đã mượn';
+            case 'returned': return 'Đã trả';
+            case 'cancelled': return 'Đã hủy';
+            case 'overdue': return 'Quá hạn';
+            default: return status;
+        }
+    }
+
+    // Initial state
+    if (!userSelect.value) {
+        userDetails.style.display = 'none';
+        noUserSelectedAlert.style.display = 'block';
+    }
+});
+</script>
