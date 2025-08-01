@@ -1,0 +1,96 @@
+﻿<%- include('../layouts/main') %>
+
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card shadow rounded-3">
+        <div class="card-header bg-primary text-white d-flex align-items-center">
+          <i class="fas fa-bell me-2"></i>
+          <h5 class="mb-0">Thông báo của bạn</h5>
+        </div>
+        <div class="card-body">
+          <% if (notifications && notifications.length > 0) { %>
+            <ul class="list-group list-group-flush">
+              <% notifications.forEach(notification => { %>
+                <li class="list-group-item">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                      <div class="fw-bold text-dark">
+                        <%- notification.message %>
+                      </div>
+                      <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>
+                        <%= new Date(notification.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) %> -
+                        <%= new Date(notification.createdAt).toLocaleDateString('vi-VN') %>
+                      </small>
+                    </div>
+                    <% if (!notification.read) { %>
+                      <span class="badge bg-danger rounded-pill">Mới</span>
+                    <% } %>
+                  </div>
+
+                  <% if (notification.reply && notification.reply.length > 0) { %>
+                    <div class="alert alert-secondary mt-2 mb-0 small">
+                      <i class="fas fa-reply me-1"></i> <strong>Phản hồi của bạn:</strong><br>
+                      <%= notification.reply %>
+                    </div>
+                  <% } else { %>
+                    <!-- Form phản hồi -->
+                    <form class="mt-2 reply-form" data-id="<%= notification._id %>">
+                      <div class="input-group input-group-sm">
+                        <input type="text" class="form-control" name="replyMessage" placeholder="Nhập phản hồi..." required>
+                        <button class="btn btn-outline-primary btn-sm" type="submit">Gửi</button>
+                      </div>
+                      <div class="reply-result mt-1 text-success small"></div>
+                    </form>
+                  <% } %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } else { %>
+            <div class="alert alert-info mb-0 text-center">
+              <i class="fas fa-info-circle me-2"></i> Hiện bạn chưa có thông báo nào.
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+document.querySelectorAll(".reply-form").forEach(form => {
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const replyInput = form.querySelector("input[name='replyMessage']");
+    const resultDiv = form.querySelector(".reply-result");
+    const notificationId = form.dataset.id;
+    const message = replyInput.value.trim();
+
+    if (!message) return;
+
+    try {
+      const res = await fetch("/notifications/reply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationId, reply: message }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        resultDiv.textContent = "✔️ Đã gửi phản hồi!";
+        replyInput.disabled = true;
+        form.querySelector("button").disabled = true;
+        form.classList.add("text-muted");
+      } else {
+        resultDiv.textContent = data.error || "❌ Gửi thất bại.";
+        resultDiv.classList.replace("text-success", "text-danger");
+      }
+    } catch (err) {
+      resultDiv.textContent = "❌ Lỗi kết nối.";
+      resultDiv.classList.replace("text-success", "text-danger");
+    }
+  });
+});
+</script>

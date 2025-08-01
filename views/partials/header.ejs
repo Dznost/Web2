@@ -37,6 +37,17 @@
 						Yêu cầu sách
 					</a>
 				</li>
+				<li class="nav-item">
+					<a class="nav-link position-relative" href="/user/notifications">
+						<i class="fas fa-bell me-1"></i>
+						Thông báo
+						<% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
+						<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+							<%= unreadCount %>
+						</span>
+						<% } %>
+					</a>
+				</li>
 
 				<% if (user.role === 'librarian' || user.role === 'admin') { %>
 				<li class="nav-item dropdown">
@@ -58,6 +69,11 @@
 						<li>
 							<a class="dropdown-item" href="/librarian/update-status?type=return">
 								<i class="fas fa-undo me-2"></i>Xác nhận trả sách
+							</a>
+						</li>
+						<li>
+							<a class="dropdown-item" href="/librarian/payment">
+								<i class="fas fa-wallet me-2"></i>Thanh toán
 							</a>
 						</li>
 					</ul>

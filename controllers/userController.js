@@ -1,6 +1,7 @@
 const BorrowRequest = require("../models/BorrowRequest")
 const BookRequest = require("../models/BookRequest")
 const User = require("../models/User")
+const Notification = require('../models/notification');
 
 exports.showCart = async (req, res) => {
   try {
@@ -55,30 +56,44 @@ exports.submitBookRequest = async (req, res) => {
   }
 }
 
+// Cuối file userController.js
+
 exports.cancelBorrowRequest = async (req, res) => {
-  try {
-    const borrowRequest = await BorrowRequest.findOne({
-      _id: req.params.id,
-      userId: req.session.user.id,
-      status: "pending",
-    }).populate("bookId")
+    try {
+        const borrowRequest = await BorrowRequest.findOne({
+            _id: req.params.id,
+            userId: req.session.user.id,
+            status: "pending",
+        }).populate("bookId")
 
-    if (!borrowRequest) {
-      return res.status(404).json({ error: "Không tìm thấy yêu cầu mượn sách" })
+        if (!borrowRequest) {
+            return res.status(404).json({ error: "Không tìm thấy yêu cầu mượn sách" })
+        }
+
+        const book = borrowRequest.bookId
+        book.branches[borrowRequest.branch] += 1
+        await book.save()
+
+        borrowRequest.status = "cancelled"
+        await borrowRequest.save()
+
+        res.json({ success: true, message: "Đã hủy yêu cầu mượn sách" })
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({ error: "Lỗi server" })
     }
-
-    // Return book quantity
-    const book = borrowRequest.bookId
-    book.branches[borrowRequest.branch] += 1
-    await book.save()
-
-    // Update request status
-    borrowRequest.status = "cancelled"
-    await borrowRequest.save()
-
-    res.json({ success: true, message: "Đã hủy yêu cầu mượn sách" })
-  } catch (error) {
-    console.error(error)
-    res.status(500).json({ error: "Lỗi server" })
-  }
 }
+
+// TÁCH RA KHỎI cancelBorrowRequest
+exports.renderUserPage = async (req, res) => {
+    const unreadCount = await Notification.countDocuments({
+        userId: req.user._id,
+        isRead: false,
+    })
+
+    res.render('layouts/main', {
+        unreadCount,
+        user: req.user,
+    })
+}
+

@@ -1,27 +1,23 @@
-// app.js
 const express = require("express")
 const mongoose = require("mongoose")
 const session = require("express-session")
 const MongoStore = require("connect-mongo")
 const path = require("path")
 const multer = require("multer")
-const connectDB = require("./config/database") // Import connectDB
+const connectDB = require("./config/database")
+const unreadNotifications = require("./middleware/unreadNotifications")
 
 const app = express()
 
-// ======= Kết nối CSDL ========
+// ======= DB Connect ========
 connectDB()
 
-// ======= Cấu hình multer ========
+// ======= Multer config ========
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/")
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + "-" + file.originalname)
-    },
+	destination: (req, file, cb) => cb(null, "uploads/"),
+	filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
 })
-const upload = multer({ storage: storage })
+const upload = multer({ storage })
 app.locals.upload = upload
 
 // ======= Middleware ========
@@ -33,24 +29,27 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 // ======= Session ========
 const mongoUrl = "mongodb+srv://fuibui3:123456%40@cluster0.jnhped4.mongodb.net/library-management?retryWrites=true&w=majority"
 app.use(
-    session({
-        secret: "library-secret-key-2024",
-        resave: false,
-        saveUninitialized: false,
-        store: MongoStore.create({ mongoUrl }),
-        cookie: { maxAge: 24 * 60 * 60 * 1000 },
-    }),
+	session({
+		secret: "library-secret-key-2024",
+		resave: false,
+		saveUninitialized: false,
+		store: MongoStore.create({ mongoUrl }),
+		cookie: { maxAge: 24 * 60 * 60 * 1000 },
+	})
 )
 
-// ======= EJS view engine ========
+// ======= View engine ========
 app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
 
-// ======= Global Middleware ========
+// ======= Global locals ========
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null
-    next()
+	res.locals.user = req.session.user || null
+	next()
 })
+
+// ======= Middleware sau khi session có ========
+app.use(unreadNotifications)
 
 // ======= Routes ========
 app.use("/auth", require("./routes/auth"))
@@ -58,31 +57,35 @@ app.use("/books", require("./routes/books"))
 app.use("/user", require("./routes/user"))
 app.use("/admin", require("./routes/admin"))
 app.use("/librarian", require("./routes/librarian"))
+app.use("/notifications", require("./routes/notifications"))
+app.use(express.urlencoded({ extended: true }));
+
 
 // ======= Trang chủ ========
 app.get("/", async (req, res) => {
-    try {
-        const Book = require("./models/Book")
-        const books = await Book.find({ quantity: { $gt: 0 } })
-            .limit(12)
-            .sort({ createdAt: -1 })
-        res.render("books/index", {
-            books,
-            title: "Thư viện trực tuyến",
-            currentSearch: "",
-            currentGenre: "all",
-            currentSort: "newest",
-            genres: await Book.distinct("genre"),
-        })
-    } catch (error) {
-        console.error(error)
-        res.status(500).send("Server Error")
-    }
+	try {
+		const Book = require("./models/Book")
+		const books = await Book.find({ quantity: { $gt: 0 } })
+			.limit(12)
+			.sort({ createdAt: -1 })
+
+		res.render("books/index", {
+			books,
+			title: "Thư viện trực tuyến",
+			currentSearch: "",
+			currentGenre: "all",
+			currentSort: "newest",
+			genres: await Book.distinct("genre"),
+		})
+	} catch (error) {
+		console.error(error)
+		res.status(500).send("Server Error")
+	}
 })
 
-// ======= Start server ========
+// ======= Start Server ========
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`)
-    console.log(`🌐 Visit: http://localhost:${PORT}`)
+	console.log(`🚀 Server running on port ${PORT}`)
+	console.log(`🌐 Visit: http://localhost:${PORT}`)
 })
