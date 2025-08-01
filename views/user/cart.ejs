@@ -30,6 +30,8 @@
                                         <th>Chi nhánh</th>
                                         <th>Ngày đăng ký</th>
                                         <th>Ngày nhận</th>
+                                        <th>Ngày mượn</th>
+                                        <th>Ngày trả</th>
                                         <th>Trạng thái</th>
                                         <th>Thao tác</th>
                                     </tr>
@@ -55,6 +57,25 @@
                                             </td>
                                             <td><%= request.requestDate.toLocaleDateString('vi-VN') %></td>
                                             <td><%= request.pickupDate.toLocaleDateString('vi-VN') %></td>
+                                            
+                                            <td>
+                                                <% if (request.borrowDate) { %>
+                                                    <%= new Date(request.borrowDate).toLocaleDateString('vi-VN') %>
+                                                <% } else { %>
+                                                    <em class="text-muted">Chưa mượn</em>
+                                                <% } %>
+                                            </td>
+
+                                            <td>
+                                                <% if (request.actualReturnDate) { %>
+                                                    <%= new Date(request.actualReturnDate).toLocaleDateString('vi-VN') %>
+                                                <% } else if (request.status === 'returned') { %>
+                                                    <em class="text-muted">Không rõ</em>
+                                                <% } else { %>
+                                                    <em class="text-muted">Chưa trả</em>
+                                                <% } %>
+                                            </td>
+
                                             <td>
                                                 <% if (request.status === 'pending') { %>
                                                     <span class="badge bg-warning">Chờ xử lý</span>
@@ -68,6 +89,7 @@
                                                     <span class="badge bg-danger">Đã hủy</span>
                                                 <% } %>
                                             </td>
+                                            
                                             <td>
                                                 <% if (request.status === 'pending') { %>
                                                     <button class="btn btn-sm btn-outline-danger" 
@@ -95,17 +117,14 @@
 
 <script>
 async function cancelRequest(requestId) {
-    if (!confirm('Bạn có chắc chắn muốn hủy yêu cầu mượn sách này?')) {
-        return;
-    }
-    
+    if (!confirm('Bạn có chắc chắn muốn hủy yêu cầu mượn sách này?')) return;
+
     try {
         const response = await fetch(`/user/borrow/${requestId}`, {
             method: 'DELETE'
         });
-        
         const result = await response.json();
-        
+
         if (result.success) {
             alert(result.message);
             location.reload();
