@@ -154,8 +154,8 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const total = updateTotal();
 
-        if (total > currentMaxBooks) {
-            alert(`Tổng phân bố vượt quá số lượng sách (${currentMaxBooks})`);
+        if (total !== currentMaxBooks) {
+            alert(`Tổng phân bố phải bằng đúng số lượng sách (${currentMaxBooks})`);
             return;
         }
 
@@ -217,4 +217,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-```

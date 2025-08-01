@@ -75,9 +75,9 @@ exports.updateDistribution = async (req, res) => {
 
         const newTotal = newA + newB + newC + newD;
 
-        if (newTotal > originalTotal) {
+        if (newTotal !== originalTotal) {
             return res.status(400).json({
-                error: `Tổng số sách mới (${newTotal}) vượt quá số lượng ban đầu (${originalTotal}).`,
+                error: `Tổng phân bố mới (${newTotal}) phải bằng đúng tổng số sách đã thêm (${originalTotal}).`,
             });
         }
 
@@ -246,9 +246,9 @@ exports.updateBook = async (req, res) => {
 
         const newTotal = newA + newB + newC + newD;
 
-        if (newTotal > originalTotal) {
+        if (newTotal !== originalTotal) {
             return res.status(400).json({
-                error: `Tổng số sách mới (${newTotal}) vượt quá số lượng ban đầu (${originalTotal}).`,
+                error: `Tổng phân bố mới (${newTotal}) phải bằng đúng tổng số sách đã thêm (${originalTotal}).`,
             });
         }
 
