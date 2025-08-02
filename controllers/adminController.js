@@ -14,8 +14,27 @@ exports.addBook = async (req, res) => {
     try {
         const { bookId, title, author, year, genre, summary, branchA, branchB, branchC, branchD } = req.body;
 
+        const newBranches = {
+            A: Number.parseInt(branchA) || 0,
+            B: Number.parseInt(branchB) || 0,
+            C: Number.parseInt(branchC) || 0,
+            D: Number.parseInt(branchD) || 0,
+        };
+
         const existingBook = await Book.findOne({ bookId });
-        if (existingBook) return res.status(400).json({ error: "Mã sách đã tồn tại" });
+
+        if (existingBook) {
+            existingBook.branches.A += newBranches.A;
+            existingBook.branches.B += newBranches.B;
+            existingBook.branches.C += newBranches.C;
+            existingBook.branches.D += newBranches.D;
+
+            await existingBook.save();
+            return res.json({
+                success: true,
+                message: "Sách đã tồn tại. Đã cộng thêm số lượng vào sách hiện tại.",
+            });
+        }
 
         const book = new Book({
             bookId,
@@ -24,20 +43,15 @@ exports.addBook = async (req, res) => {
             year: Number.parseInt(year),
             genre,
             summary,
-            branches: {
-                A: Number.parseInt(branchA) || 0,
-                B: Number.parseInt(branchB) || 0,
-                C: Number.parseInt(branchC) || 0,
-                D: Number.parseInt(branchD) || 0,
-            },
+            branches: newBranches,
             image: req.file ? `/uploads/${req.file.filename}` : "/images/default-book.jpg",
         });
 
         await book.save();
-        res.json({ success: true, message: "Thêm sách thành công!" });
+        res.json({ success: true, message: "Thêm sách mới thành công!" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Lỗi server" });
+        res.status(500).json({ error: "Lỗi server khi thêm sách" });
     }
 };
 
@@ -186,12 +200,15 @@ exports.deleteBook = async (req, res) => {
         const book = await Book.findById(req.params.id);
         if (!book) return res.status(404).json({ error: "Không tìm thấy sách" });
 
-        const activeBorrowRequests = await BorrowRequest.countDocuments({
+        const hasActiveBorrow = await BorrowRequest.exists({
             bookId: book._id,
-            status: { $in: ["pending", "approved", "borrowed"] },
+            status: { $nin: ["returned", "rejected"] }
         });
-        if (activeBorrowRequests > 0) {
-            return res.status(400).json({ error: "Không thể xóa sách vì đang được mượn hoặc chờ xử lý." });
+
+        if (hasActiveBorrow) {
+            return res.status(400).json({
+                error: "Không thể xóa sách vì có người đang mượn hoặc yêu cầu mượn chưa hoàn tất."
+            });
         }
 
         if (book.image && book.image !== "/images/default-book.jpg") {
@@ -201,7 +218,7 @@ exports.deleteBook = async (req, res) => {
 
         await book.deleteOne();
         await BookRequest.deleteMany({ bookId: book._id });
-        await BorrowRequest.deleteMany({ bookId: book._id, status: { $nin: ["borrowed", "pending", "approved"] } });
+        await BorrowRequest.deleteMany({ bookId: book._id });
 
         res.json({ success: true, message: "Xóa sách thành công!" });
     } catch (error) {
@@ -225,44 +242,15 @@ exports.showEditBook = async (req, res) => {
 
 exports.updateBook = async (req, res) => {
     try {
-        const { title, author, year, genre, summary, branchA, branchB, branchC, branchD, existingImage } = req.body;
+        const { title, author, year, genre, summary, existingImage } = req.body;
         const book = await Book.findById(req.params.id);
         if (!book) return res.status(404).json({ error: "Không tìm thấy sách" });
-
-        const originalTotal =
-            (book.branches.A || 0) +
-            (book.branches.B || 0) +
-            (book.branches.C || 0) +
-            (book.branches.D || 0);
-
-        const newA = parseInt(branchA) || 0;
-        const newB = parseInt(branchB) || 0;
-        const newC = parseInt(branchC) || 0;
-        const newD = parseInt(branchD) || 0;
-
-        if (newA < 0 || newB < 0 || newC < 0 || newD < 0) {
-            return res.status(400).json({ error: "Số lượng sách tại chi nhánh không thể âm" });
-        }
-
-        const newTotal = newA + newB + newC + newD;
-
-        if (newTotal !== originalTotal) {
-            return res.status(400).json({
-                error: `Tổng phân bố mới (${newTotal}) phải bằng đúng tổng số sách đã thêm (${originalTotal}).`,
-            });
-        }
 
         book.title = title;
         book.author = author;
         book.year = Number.parseInt(year);
         book.genre = genre;
         book.summary = summary;
-        book.branches = {
-            A: newA,
-            B: newB,
-            C: newC,
-            D: newD,
-        };
 
         if (req.file) {
             if (book.image && book.image !== "/images/default-book.jpg") {

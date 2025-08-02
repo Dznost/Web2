@@ -24,26 +24,32 @@
                         <%= new Date(notification.createdAt).toLocaleDateString('vi-VN') %>
                       </small>
                     </div>
-                    <% if (!notification.read) { %>
+                    <% if (!notification.isRead) { %>
                       <span class="badge bg-danger rounded-pill">Mới</span>
                     <% } %>
                   </div>
 
-                  <% if (notification.reply && notification.reply.length > 0) { %>
-                    <div class="alert alert-secondary mt-2 mb-0 small">
-                      <i class="fas fa-reply me-1"></i> <strong>Phản hồi của bạn:</strong><br>
-                      <%= notification.reply %>
-                    </div>
+                  <% if (notification.replies && notification.replies.length > 0) { %>
+                    <% notification.replies.forEach(reply => { %>
+                      <div class="alert alert-secondary mt-2 mb-0 small">
+                        <i class="fas fa-reply me-1"></i>
+                        <strong><%= reply.senderId?.fullName || 'Người dùng' %>:</strong> <%= reply.message %><br>
+                        <small class="text-muted"><%= new Date(reply.createdAt).toLocaleString('vi-VN') %></small>
+                      </div>
+                    <% }) %>
                   <% } else { %>
                     <!-- Form phản hồi -->
                     <form class="mt-2 reply-form" data-id="<%= notification._id %>">
                       <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" name="replyMessage" placeholder="Nhập phản hồi..." required>
+                        <input type="text" class="form-control" name="message" placeholder="Nhập phản hồi..." required>
                         <button class="btn btn-outline-primary btn-sm" type="submit">Gửi</button>
                       </div>
                       <div class="reply-result mt-1 text-success small"></div>
                     </form>
                   <% } %>
+                  <a href="/notifications/<%= notification._id %>/replies" class="btn btn-sm btn-info mt-2">
+                    <i class="fas fa-comments me-1"></i>Xem phản hồi
+                  </a>
                 </li>
               <% }) %>
             </ul>
@@ -62,7 +68,7 @@
 document.querySelectorAll(".reply-form").forEach(form => {
   form.addEventListener("submit", async e => {
     e.preventDefault();
-    const replyInput = form.querySelector("input[name='replyMessage']");
+    const replyInput = form.querySelector("input[name='message']");
     const resultDiv = form.querySelector(".reply-result");
     const notificationId = form.dataset.id;
     const message = replyInput.value.trim();
@@ -70,12 +76,12 @@ document.querySelectorAll(".reply-form").forEach(form => {
     if (!message) return;
 
     try {
-      const res = await fetch("/notifications/reply", {
+      const res = await fetch(`/notifications/${notificationId}/reply`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ notificationId, reply: message }),
+        body: JSON.stringify({ message }),
       });
       const data = await res.json();
       if (data.success) {

@@ -1,3 +1,4 @@
+<html lang="vi">
 <%- include('../layouts/main') %>
 
 <div class="container">
@@ -50,32 +51,31 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <code class="bg-light p-1 rounded"><%= request.confirmationCode %></code>
+                                                <code class="bg-light p-1 rounded"><%= request.confirmationCode || '---' %></code>
                                             </td>
                                             <td>
                                                 <span class="badge bg-info">Chi nhánh <%= request.branch %></span>
                                             </td>
-                                            <td><%= request.requestDate.toLocaleDateString('vi-VN') %></td>
-                                            <td><%= request.pickupDate.toLocaleDateString('vi-VN') %></td>
-                                            
+                                            <td><%= request.requestDate ? request.requestDate.toLocaleDateString('vi-VN') : '---' %></td>
+                                            <td><%= request.expectedReceiveDate ? request.expectedReceiveDate.toLocaleDateString('vi-VN') : '---' %></td>
                                             <td>
                                                 <% if (request.borrowDate) { %>
-                                                    <%= new Date(request.borrowDate).toLocaleDateString('vi-VN') %>
+                                                    <%= request.borrowDate.toLocaleDateString('vi-VN') %>
                                                 <% } else { %>
                                                     <em class="text-muted">Chưa mượn</em>
                                                 <% } %>
                                             </td>
-
                                             <td>
                                                 <% if (request.actualReturnDate) { %>
-                                                    <%= new Date(request.actualReturnDate).toLocaleDateString('vi-VN') %>
+                                                    <%= request.actualReturnDate.toLocaleDateString('vi-VN') %>
                                                 <% } else if (request.status === 'returned') { %>
                                                     <em class="text-muted">Không rõ</em>
+                                                <% } else if (request.returnDate) { %>
+                                                    <%= request.returnDate.toLocaleDateString('vi-VN') %>
                                                 <% } else { %>
                                                     <em class="text-muted">Chưa trả</em>
                                                 <% } %>
                                             </td>
-
                                             <td>
                                                 <% if (request.status === 'pending') { %>
                                                     <span class="badge bg-warning">Chờ xử lý</span>
@@ -89,7 +89,6 @@
                                                     <span class="badge bg-danger">Đã hủy</span>
                                                 <% } %>
                                             </td>
-                                            
                                             <td>
                                                 <% if (request.status === 'pending') { %>
                                                     <button class="btn btn-sm btn-outline-danger" 
@@ -120,8 +119,8 @@ async function cancelRequest(requestId) {
     if (!confirm('Bạn có chắc chắn muốn hủy yêu cầu mượn sách này?')) return;
 
     try {
-        const response = await fetch(`/user/borrow/${requestId}`, {
-            method: 'DELETE'
+        const response = await fetch(`/user/borrow/${requestId}/cancel`, {
+            method: 'POST'
         });
         const result = await response.json();
 
@@ -136,3 +135,4 @@ async function cancelRequest(requestId) {
     }
 }
 </script>
+</html>

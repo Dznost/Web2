@@ -27,7 +27,7 @@
                             
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label for="title" class="form-label">
+                                    <label for="title" class:="form-label">
                                         <i class="fas fa-book me-1"></i>Tên sách *
                                     </label>
                                     <input type="text" class="form-control" id="title" name="title" 
@@ -100,57 +100,6 @@
                             <div class="form-text">Chọn ảnh mới để thay thế. Chấp nhận file JPG, PNG. Tối đa 5MB.</div>
                         </div>
                         
-                        <div class="card border-info mb-3">
-                            <div class="card-header bg-info text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-warehouse me-2"></i>
-                                    Phân bố theo chi nhánh
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchA" class="form-label">Chi nhánh A</label>
-                                            <input type="number" class="form-control" id="branchA" name="branchA" 
-                                                   min="0" value="<%= book.branches.A %>">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchB" class="form-label">Chi nhánh B</label>
-                                            <input type="number" class="form-control" id="branchB" name="branchB" 
-                                                   min="0" value="<%= book.branches.B %>">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchC" class="form-label">Chi nhánh C</label>
-                                            <input type="number" class="form-control" id="branchC" name="branchC" 
-                                                   min="0" value="<%= book.branches.C %>">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchD" class="form-label">Chi nhánh D</label>
-                                            <input type="number" class="form-control" id="branchD" name="branchD" 
-                                                   min="0" value="<%= book.branches.D %>">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="alert alert-info mb-0">
-                                    <small>
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Tổng số sách: <span id="totalBooks">0</span> quyển
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                        
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                             <a href="/books/<%= book._id %>" class="btn btn-secondary me-md-2">
                                 <i class="fas fa-arrow-left me-1"></i>Hủy
@@ -168,26 +117,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Calculate total books
-    function updateTotal() {
-        const branchA = parseInt(document.getElementById('branchA').value) || 0;
-        const branchB = parseInt(document.getElementById('branchB').value) || 0;
-        const branchC = parseInt(document.getElementById('branchC').value) || 0;
-        const branchD = parseInt(document.getElementById('branchD').value) || 0;
-        
-        const total = branchA + branchB + branchC + branchD;
-        document.getElementById('totalBooks').textContent = total;
-    }
-
-    // Add event listeners
-    document.getElementById('branchA').addEventListener('input', updateTotal);
-    document.getElementById('branchB').addEventListener('input', updateTotal);
-    document.getElementById('branchC').addEventListener('input', updateTotal);
-    document.getElementById('branchD').addEventListener('input', updateTotal);
-
-    // Initial calculation
-    updateTotal();
-
     // Form submission
     document.getElementById('editBookForm').addEventListener('submit', async function(e) {
         e.preventDefault();

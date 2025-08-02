@@ -1,7 +1,7 @@
 // middleware/unreadNotifications.js
 const Notification = require('../models/notification')
 
-module.exports = async (req, res, next) => {
+module.exports = async function (req, res, next) {
 	if (req.session.user) {
 		try {
 			const unread = await Notification.countDocuments({

@@ -1,4 +1,4 @@
-﻿const mongoose = require("mongoose")
+﻿const mongoose = require("mongoose");
 
 const borrowRequestSchema = new mongoose.Schema({
     userId: {
@@ -32,7 +32,7 @@ const borrowRequestSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    pickupDate: {
+    expectedReceiveDate: {
         type: Date,
         required: true,
     },
@@ -53,14 +53,14 @@ const borrowRequestSchema = new mongoose.Schema({
         default: 0,
     },
     notes: String,
-})
+});
 
 // Generate confirmation code before saving
 borrowRequestSchema.pre("save", function (next) {
     if (!this.confirmationCode && this.isNew) {
-        this.confirmationCode = "BR" + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase()
+        this.confirmationCode = "BR" + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
     }
-    next()
-})
+    next();
+});
 
-module.exports = mongoose.model("BorrowRequest", borrowRequestSchema)
+module.exports = mongoose.model("BorrowRequest", borrowRequestSchema);

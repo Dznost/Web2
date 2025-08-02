@@ -1,0 +1,31 @@
+﻿<%- include('../layouts/main') %>
+
+<main class="container py-4">
+  <h3 class="mb-4">
+    <i class="fas fa-comments me-2"></i>Phản hồi cho thông báo:
+  </h3>
+  <div class="alert alert-info">
+    <%= notification.message %>
+  </div>
+
+  <% if (replies.length > 0) { %>
+    <ul class="list-group">
+      <% replies.forEach(reply => { %>
+        <li class="list-group-item">
+          <strong><%= reply.senderId.fullName %> (<%= reply.senderId.role %>)</strong><br />
+          <%= reply.message %><br />
+          <small class="text-muted">
+            <i class="fas fa-clock me-1"></i>
+            <%= new Date(reply.createdAt).toLocaleString('vi-VN') %>
+          </small>
+        </li>
+      <% }) %>
+    </ul>
+  <% } else { %>
+    <div class="alert alert-secondary mt-3">Chưa có phản hồi nào cho thông báo này.</div>
+  <% } %>
+
+  <a href="/notifications" class="btn btn-secondary mt-4">
+    <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách thông báo
+  </a>
+</main>
