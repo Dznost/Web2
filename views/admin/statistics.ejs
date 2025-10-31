@@ -1,105 +1,842 @@
 ﻿<%- include('../layouts/main') %>
 
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Thống kê sách cần mua
-                    </h4>
+<style>
+.stats-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.page-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+    animation: fadeInDown 0.6s ease;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+    animation: fadeInUp 0.6s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
+
+.stat-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card-pending .stat-card-icon {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    color: #d63031;
+}
+
+.stat-card-approved .stat-card-icon {
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    color: #00695c;
+}
+
+.stat-card-rejected .stat-card-icon {
+    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+    color: white;
+}
+
+.stat-card-total .stat-card-icon {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: white;
+}
+
+.stat-card-label {
+    color: #718096;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0.5rem 0;
+}
+
+.main-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.main-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.main-card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: pulse 15s ease-in-out infinite;
+}
+
+.main-card-header h4 {
+    position: relative;
+    z-index: 1;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.filter-section {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.6rem 1.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    background: white;
+    color: #4a5568;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    border-color: #667eea;
+    background: #eef2ff;
+    color: #667eea;
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #a0aec0;
+}
+
+.table-container {
+    padding: 2rem;
+}
+
+.request-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+.request-table thead th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.request-table thead th:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+.request-table thead th:last-child {
+    border-radius: 0 10px 10px 0;
+}
+
+.request-table tbody tr {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.request-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.request-table tbody td {
+    padding: 1.25rem 1rem;
+    border: none;
+    vertical-align: middle;
+}
+
+.request-table tbody tr td:first-child {
+    border-radius: 10px 0 0 10px;
+}
+
+.request-table tbody tr td:last-child {
+    border-radius: 0 10px 10px 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.user-email {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.book-info strong {
+    color: #2d3748;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.book-meta {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.status-badge {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    color: #d63031;
+}
+
+.status-approved {
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    color: #00695c;
+}
+
+.status-rejected {
+    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+    color: white;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-action {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-approve {
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    color: white;
+}
+
+.btn-approve:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 184, 148, 0.4);
+}
+
+.btn-reject {
+    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+    color: white;
+}
+
+.btn-reject:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(214, 48, 49, 0.4);
+}
+
+.btn-disabled {
+    background: #e2e8f0;
+    color: #a0aec0;
+    cursor: not-allowed;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state i {
+    font-size: 5rem;
+    color: #cbd5e0;
+    margin-bottom: 1.5rem;
+}
+
+.empty-state h3 {
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #718096;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.modal-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.modal-icon.approve {
+    background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+    color: white;
+}
+
+.modal-icon.reject {
+    background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+    color: white;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #2d3748;
+}
+
+.modal-body textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    min-height: 120px;
+    resize: vertical;
+    font-size: 1rem;
+}
+
+.modal-body textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.modal-footer button {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@media (max-width: 768px) {
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .filter-buttons {
+        flex-direction: column;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .table-container {
+        padding: 1rem;
+        overflow-x: auto;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+}
+</style>
+
+<div class="stats-container">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-chart-line"></i> Thống Kê Yêu Cầu Mua Sách</h1>
+            <p>Quản lý và phê duyệt các yêu cầu mua sách từ người dùng</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
+            <div class="stat-card stat-card-total">
+                <div class="stat-card-icon">
+                    <i class="fas fa-list"></i>
                 </div>
-                <div class="card-body">
-                    <% if (bookRequests.length === 0) { %>
-                        <div class="alert alert-info text-center py-4">
-                            <i class="fas fa-info-circle fa-2x mb-2"></i>
-                            <p class="mb-0">Chưa có yêu cầu sách mới nào.</p>
-                        </div>
-                    <% } else { %>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Người yêu cầu</th>
-                                        <th>Tên sách</th>
-                                        <th>Tác giả</th>
-                                        <th>Lý do</th>
-                                        <th>Ngày yêu cầu</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% bookRequests.forEach(request => { %>
-                                        <tr>
-                                            <td><%= request.username %></td>
-                                            <td>
-                                                <strong><%= request.title %></strong>
-                                                <% if (request.year) { %>(<%= request.year %>)<% } %>
-                                                <% if (request.genre) { %><br><small class="text-muted"><%= request.genre %></small><% } %>
-                                            </td>
-                                            <td><%= request.author %></td>
-                                            <td><%= request.reason %></td>
-                                            <td><%= request.createdAt.toLocaleDateString('vi-VN') %></td>
-                                            <td>
-                                                <% if (request.status === 'pending') { %>
-                                                    <span class="badge bg-warning">Chờ xử lý</span>
-                                                <% } else if (request.status === 'approved') { %>
-                                                    <span class="badge bg-success">Đã duyệt</span>
-                                                <% } else if (request.status === 'rejected') { %>
-                                                    <span class="badge bg-danger">Đã từ chối</span>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <% if (request.status === 'pending') { %>
-                                                    <button class="btn btn-sm btn-success me-1" 
-                                                            onclick="updateStatus('<%= request._id %>', 'approved')">
-                                                        <i class="fas fa-check"></i> Duyệt
-                                                    </button>
-                                                    <button class="btn btn-sm btn-danger" 
-                                                            onclick="updateStatus('<%= request._id %>', 'rejected')">
-                                                        <i class="fas fa-times"></i> Từ chối
-                                                    </button>
-                                                <% } else { %>
-                                                    <button class="btn btn-sm btn-secondary" disabled>Đã xử lý</button>
-                                                <% } %>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
-                    <% } %>
+                <div class="stat-card-label">Tổng yêu cầu</div>
+                <div class="stat-card-value" id="totalCount">
+                    <%= bookRequests.length %>
                 </div>
+            </div>
+
+            <div class="stat-card stat-card-pending">
+                <div class="stat-card-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-card-label">Chờ xử lý</div>
+                <div class="stat-card-value" id="pendingCount">
+                    <%= bookRequests.filter(r => r.status === 'pending').length %>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card-approved">
+                <div class="stat-card-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-card-label">Đã duyệt</div>
+                <div class="stat-card-value" id="approvedCount">
+                    <%= bookRequests.filter(r => r.status === 'approved').length %>
+                </div>
+            </div>
+
+            <div class="stat-card stat-card-rejected">
+                <div class="stat-card-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-card-label">Đã từ chối</div>
+                <div class="stat-card-value" id="rejectedCount">
+                    <%= bookRequests.filter(r => r.status === 'rejected').length %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Table Card -->
+        <div class="main-card">
+            <div class="main-card-header">
+                <h4><i class="fas fa-book-bookmark me-2"></i>Danh Sách Yêu Cầu</h4>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-buttons">
+                    <button class="filter-btn active" onclick="filterRequests('all')">
+                        <i class="fas fa-list me-2"></i>Tất cả
+                    </button>
+                    <button class="filter-btn" onclick="filterRequests('pending')">
+                        <i class="fas fa-clock me-2"></i>Chờ xử lý
+                    </button>
+                    <button class="filter-btn" onclick="filterRequests('approved')">
+                        <i class="fas fa-check me-2"></i>Đã duyệt
+                    </button>
+                    <button class="filter-btn" onclick="filterRequests('rejected')">
+                        <i class="fas fa-times me-2"></i>Đã từ chối
+                    </button>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm theo tên sách, tác giả..." onkeyup="searchRequests()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <% if (bookRequests.length === 0) { %>
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h3>Chưa có yêu cầu nào</h3>
+                        <p>Danh sách yêu cầu mua sách sẽ hiển thị ở đây</p>
+                    </div>
+                <% } else { %>
+                    <table class="request-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user me-2"></i>Người yêu cầu</th>
+                                <th><i class="fas fa-book me-2"></i>Thông tin sách</th>
+                                <th><i class="fas fa-comment me-2"></i>Lý do</th>
+                                <th><i class="fas fa-calendar me-2"></i>Ngày yêu cầu</th>
+                                <th><i class="fas fa-flag me-2"></i>Trạng thái</th>
+                                <th><i class="fas fa-cog me-2"></i>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestTableBody">
+                            <% bookRequests.forEach(request => { %>
+                                <tr data-status="<%= request.status %>" data-title="<%= request.title.toLowerCase() %>" data-author="<%= request.author.toLowerCase() %>">
+                                    <td>
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                <%= request.username.charAt(0).toUpperCase() %>
+                                            </div>
+                                            <div class="user-details">
+                                                <span class="user-name"><%= request.username %></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="book-info">
+                                            <strong><%= request.title %></strong>
+                                            <div class="book-meta">
+                                                <i class="fas fa-user-pen me-1"></i><%= request.author %>
+                                                <% if (request.year) { %>
+                                                    <span class="ms-2"><i class="fas fa-calendar me-1"></i><%= request.year %></span>
+                                                <% } %>
+                                            </div>
+                                            <% if (request.genre) { %>
+                                                <div class="book-meta mt-1">
+                                                    <i class="fas fa-tags me-1"></i><%= request.genre %>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    </td>
+                                    <td><%= request.reason %></td>
+                                    <td>
+                                        <i class="fas fa-clock me-1"></i>
+                                        <%= request.createdAt.toLocaleDateString('vi-VN') %>
+                                    </td>
+                                    <td>
+                                        <% if (request.status === 'pending') { %>
+                                            <span class="status-badge status-pending">
+                                                <i class="fas fa-clock me-1"></i>Chờ xử lý
+                                            </span>
+                                        <% } else if (request.status === 'approved') { %>
+                                            <span class="status-badge status-approved">
+                                                <i class="fas fa-check me-1"></i>Đã duyệt
+                                            </span>
+                                        <% } else if (request.status === 'rejected') { %>
+                                            <span class="status-badge status-rejected">
+                                                <i class="fas fa-times me-1"></i>Đã từ chối
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (request.status === 'pending') { %>
+                                            <div class="action-buttons">
+                                                <button class="btn-action btn-approve" 
+                                                        onclick="openModal('<%= request._id %>', 'approved', '<%= request.title %>')">
+                                                    <i class="fas fa-check"></i> Duyệt
+                                                </button>
+                                                <button class="btn-action btn-reject" 
+                                                        onclick="openModal('<%= request._id %>', 'rejected', '<%= request.title %>')">
+                                                    <i class="fas fa-times"></i> Từ chối
+                                                </button>
+                                            </div>
+                                        <% } else { %>
+                                            <button class="btn-action btn-disabled" disabled>
+                                                <i class="fas fa-check-double me-1"></i>Đã xử lý
+                                            </button>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } %>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal-overlay" id="actionModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-icon" id="modalIcon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div>
+                <h3 id="modalTitle">Xác nhận duyệt yêu cầu</h3>
+                <p id="modalBookTitle" class="text-muted mb-0"></p>
+            </div>
+        </div>
+        <div class="modal-body">
+            <label for="adminNotes" class="form-label fw-bold mb-2">
+                <i class="fas fa-sticky-note me-2"></i>Ghi chú của admin
+            </label>
+            <textarea id="adminNotes" placeholder="Nhập ghi chú cho yêu cầu này (không bắt buộc)..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal()" style="background: #e2e8f0; color: #4a5568;">
+                <i class="fas fa-times me-2"></i>Hủy
+            </button>
+            <button id="confirmButton" onclick="confirmAction()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <i class="fas fa-check me-2"></i>Xác nhận
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-async function updateStatus(requestId, status) {
-    const adminNotes = prompt(`Nhập ghi chú cho yêu cầu này (Trạng thái: ${status}):`);
+let currentRequestId = null;
+let currentStatus = null;
+
+function openModal(requestId, status, bookTitle) {
+    currentRequestId = requestId;
+    currentStatus = status;
+    
+    const modal = document.getElementById('actionModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBookTitle = document.getElementById('modalBookTitle');
+    const confirmButton = document.getElementById('confirmButton');
+    
+    if (status === 'approved') {
+        modalIcon.className = 'modal-icon approve';
+        modalIcon.innerHTML = '<i class="fas fa-check"></i>';
+        modalTitle.textContent = 'Xác nhận duyệt yêu cầu';
+        confirmButton.style.background = 'linear-gradient(135deg, #55efc4 0%, #00b894 100%)';
+    } else {
+        modalIcon.className = 'modal-icon reject';
+        modalIcon.innerHTML = '<i class="fas fa-times"></i>';
+        modalTitle.textContent = 'Xác nhận từ chối yêu cầu';
+        confirmButton.style.background = 'linear-gradient(135deg, #ff7675 0%, #d63031 100%)';
+    }
+    
+    modalBookTitle.textContent = bookTitle;
+    modal.classList.add('active');
+}
+
+function closeModal() {
+    const modal = document.getElementById('actionModal');
+    modal.classList.remove('active');
+    document.getElementById('adminNotes').value = '';
+    currentRequestId = null;
+    currentStatus = null;
+}
+
+async function confirmAction() {
+    const adminNotes = document.getElementById('adminNotes').value;
     
     try {
-        const response = await fetch(`/admin/book-request/${requestId}`, {
+        const response = await fetch(`/admin/book-request/${currentRequestId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ status, adminNotes })
+            body: JSON.stringify({ status: currentStatus, adminNotes })
         });
         
         const result = await response.json();
         
         if (result.success) {
-            alert(result.message);
+            alert('✅ ' + result.message);
             location.reload();
         } else {
-            alert(result.error || 'Có lỗi xảy ra');
+            alert('❌ ' + (result.error || 'Có lỗi xảy ra'));
         }
     } catch (error) {
-        alert('Có lỗi xảy ra khi cập nhật trạng thái');
+        alert('❌ Có lỗi xảy ra khi cập nhật trạng thái');
     }
+    
+    closeModal();
 }
+
+function filterRequests(status) {
+    const buttons = document.querySelectorAll('.filter-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    const rows = document.querySelectorAll('#requestTableBody tr');
+    rows.forEach(row => {
+        if (status === 'all' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function searchRequests() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#requestTableBody tr');
+    
+    rows.forEach(row => {
+        const title = row.dataset.title;
+        const author = row.dataset.author;
+        
+        if (title.includes(searchTerm) || author.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Close modal when clicking outside
+document.getElementById('actionModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
 </script>

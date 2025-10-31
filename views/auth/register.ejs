@@ -1,80 +1,430 @@
 <%- include('../layouts/main') %>
-
-<div class="container">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white text-center">
-                    <h3 class="mb-0">
-                        <i class="fas fa-user-plus me-2"></i>
-                        Đăng ký tài khoản
-                    </h3>
+        <div class="col-md-6 col-lg-5">
+            <div class="card auth-card shadow-lg border-0">
+                <div class="card-header text-center py-4">
+                    <div class="auth-icon auth-icon-success mb-3">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold text-white">Đăng ký tài khoản</h3>
+                    <p class="text-white-50 mb-0 small mt-1">Tạo tài khoản mới để bắt đầu</p>
                 </div>
-                <div class="card-body">
-                    <% if (error) { %>
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <%= error %>
+                <div class="card-body p-4">
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-circle me-2 fs-5"></i>
+                                <div>
+                                    <strong>Lỗi!</strong> <%= error %>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     <% } %>
                     
-                    <form method="POST" action="/auth/register">
+                    <form method="POST" action="/auth/register" id="registerForm">
                         <div class="mb-3">
-                            <label for="fullName" class="form-label">
-                                <i class="fas fa-id-card me-1"></i>Họ và tên *
+                            <label for="fullName" class="form-label fw-semibold">
+                                <i class="fas fa-id-card text-success me-1"></i>Họ và tên
+                                <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" required>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="fullName" 
+                                name="fullName" 
+                                placeholder="Nguyễn Văn A"
+                                required
+                                autocomplete="name"
+                            >
                         </div>
                         
                         <div class="mb-3">
-                            <label for="username" class="form-label">
-                                <i class="fas fa-user me-1"></i>Tên đăng nhập *
+                            <label for="username" class="form-label fw-semibold">
+                                <i class="fas fa-user text-success me-1"></i>Tên đăng nhập
+                                <span class="text-danger">*</span>
                             </label>
-                            <input type="text" class="form-control" id="username" name="username" required>
-                            <div class="form-text">Tối thiểu 3 ký tự</div>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="username" 
+                                name="username" 
+                                placeholder="username"
+                                minlength="3"
+                                required
+                                autocomplete="username"
+                            >
+                            <div class="form-text">
+                                <i class="fas fa-info-circle me-1"></i>Tối thiểu 3 ký tự, chỉ chứa chữ, số và dấu gạch dưới
+                            </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="email" class="form-label">
-                                <i class="fas fa-envelope me-1"></i>Email *
+                            <label for="email" class="form-label fw-semibold">
+                                <i class="fas fa-envelope text-success me-1"></i>Email
+                                <span class="text-danger">*</span>
                             </label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <input 
+                                type="email" 
+                                class="form-control form-control-lg" 
+                                id="email" 
+                                name="email" 
+                                placeholder="email@example.com"
+                                required
+                                autocomplete="email"
+                            >
                         </div>
                         
                         <div class="mb-3">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock me-1"></i>Mật khẩu *
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock text-success me-1"></i>Mật khẩu
+                                <span class="text-danger">*</span>
                             </label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="form-text">Tối thiểu 6 ký tự</div>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    class="form-control form-control-lg border-end-0" 
+                                    id="password" 
+                                    name="password" 
+                                    placeholder="••••••••"
+                                    minlength="6"
+                                    required
+                                    autocomplete="new-password"
+                                >
+                                <button 
+                                    class="btn btn-outline-secondary bg-white" 
+                                    type="button" 
+                                    onclick="togglePasswordVisibility()"
+                                    tabindex="-1"
+                                >
+                                    <i class="fas fa-eye text-muted" id="toggleIcon"></i>
+                                </button>
+                            </div>
+                            <div class="form-text mb-2">
+                                <i class="fas fa-shield-alt me-1"></i>Tối thiểu 6 ký tự, nên kết hợp chữ hoa, số và ký tự đặc biệt
+                            </div>
+                            <div class="password-strength">
+                                <div class="progress" style="height: 6px; border-radius: 10px;">
+                                    <div 
+                                        class="progress-bar" 
+                                        id="passwordStrength" 
+                                        role="progressbar" 
+                                        style="width: 0%; transition: all 0.3s ease;"
+                                    ></div>
+                                </div>
+                                <small class="text-muted d-block mt-1" id="strengthText"></small>
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="role" class="form-label">
-                                <i class="fas fa-user-tag me-1"></i>Vai trò *
+                        <div class="mb-4">
+                            <label for="role" class="form-label fw-semibold">
+                                <i class="fas fa-user-tag text-success me-1"></i>Vai trò
+                                <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="">Chọn vai trò</option>
-                                <option value="reader">Độc giả</option>
-                                <option value="student">Sinh viên</option>
-                                <option value="teacher">Giảng viên</option>
+                            <select class="form-select form-select-lg" id="role" name="role" required>
+                                <option value="" selected disabled>-- Chọn vai trò của bạn --</option>
+                                <option value="reader">📚 Độc giả</option>
+                                <option value="student">🎓 Sinh viên</option>
+                                <option value="teacher">👨‍🏫 Giảng viên</option>
                             </select>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-user-plus me-1"></i>Đăng ký
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-success btn-lg fw-semibold" id="submitBtn">
+                                <i class="fas fa-user-plus me-2"></i>Đăng ký ngay
                             </button>
                         </div>
                     </form>
                     
-                    <div class="text-center mt-3">
-                        <p class="mb-0">Đã có tài khoản? 
-                            <a href="/auth/login" class="text-decoration-none">Đăng nhập</a>
+                    <div class="text-center">
+                        <div class="divider my-3">
+                            <span class="divider-text">hoặc</span>
+                        </div>
+                        <p class="mb-0 text-muted">
+                            Đã có tài khoản? 
+                            <a href="/auth/login" class="text-decoration-none fw-semibold text-success">
+                                Đăng nhập ngay <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
                         </p>
                     </div>
                 </div>
             </div>
+            
+            <!-- Security Notice -->
+            <div class="text-center mt-3">
+                <small class="text-muted">
+                    <i class="fas fa-lock me-1"></i>
+                    Thông tin của bạn được bảo mật và mã hóa
+                </small>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+.auth-card {
+    border-radius: 20px;
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.auth-card .card-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card .card-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(-20%, -20%); }
+}
+
+.auth-icon-success {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.auth-icon-success i {
+    font-size: 2.2rem;
+    color: white;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.15);
+}
+
+.input-group .form-control:focus {
+    z-index: 3;
+}
+
+.input-group .btn {
+    border-color: #dee2e6;
+}
+
+.input-group .btn:hover {
+    background-color: #f8f9fa;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-success::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-success:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.divider-text {
+    padding: 0 1rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.password-strength .progress {
+    background-color: #e2e8f0;
+}
+
+.form-text {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .auth-card {
+        border-radius: 15px;
+    }
+    
+    .auth-icon-success {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .auth-icon-success i {
+        font-size: 2rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem !important;
+    }
+}
+</style>
+
+<script>
+// Toggle password visibility
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+        toggleIcon.classList.remove('text-muted');
+        toggleIcon.classList.add('text-success');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+        toggleIcon.classList.remove('text-success');
+        toggleIcon.classList.add('text-muted');
+    }
+}
+
+// Password strength meter
+document.getElementById('password').addEventListener('input', function(e) {
+    const password = e.target.value;
+    const strengthBar = document.getElementById('passwordStrength');
+    const strengthText = document.getElementById('strengthText');
+    
+    if (password.length === 0) {
+        strengthBar.style.width = '0%';
+        strengthText.textContent = '';
+        return;
+    }
+    
+    let strength = 0;
+    let text = '';
+    let color = '';
+    
+    // Length check
+    if (password.length >= 6) strength += 20;
+    if (password.length >= 8) strength += 15;
+    if (password.length >= 12) strength += 15;
+    
+    // Character variety checks
+    if (/[a-z]/.test(password)) strength += 10;
+    if (/[A-Z]/.test(password)) strength += 15;
+    if (/\d/.test(password)) strength += 15;
+    if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+    
+    // Determine strength level
+    if (strength <= 30) {
+        text = '❌ Rất yếu';
+        color = '#ef4444';
+    } else if (strength <= 50) {
+        text = '⚠️ Yếu';
+        color = '#f59e0b';
+    } else if (strength <= 70) {
+        text = '✓ Trung bình';
+        color = '#3b82f6';
+    } else if (strength <= 85) {
+        text = '✓✓ Khá mạnh';
+        color = '#10b981';
+    } else {
+        text = '✓✓✓ Rất mạnh';
+        color = '#059669';
+    }
+    
+    strengthBar.style.width = strength + '%';
+    strengthBar.style.backgroundColor = color;
+    strengthText.textContent = text;
+    strengthText.style.color = color;
+    strengthText.style.fontWeight = '600';
+});
+
+// Form validation
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const submitBtn = document.getElementById('submitBtn');
+    const password = document.getElementById('password').value;
+    
+    // Check password strength before submit
+    if (password.length < 6) {
+        e.preventDefault();
+        alert('Mật khẩu phải có ít nhất 6 ký tự!');
+        return;
+    }
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+});
+
+// Username validation (only allow letters, numbers, underscore)
+document.getElementById('username').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^a-zA-Z0-9_]/g, '');
+});
+</scri

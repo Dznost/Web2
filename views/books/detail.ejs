@@ -1,167 +1,621 @@
 <%- include('../layouts/main') %>
 
-<div class="container">
-    <div class="row">
-        <!-- Book Information -->
-        <div class="col-md-4">
-            <div class="card">
-                <img src="<%= book.image %>" class="card-img-top" alt="<%= book.title %>">
-                <div class="card-body text-center">
-                    <% if (user && book.quantity > 0) { %>
-                        <a href="/books/<%= book._id %>/borrow" class="btn btn-success w-100 mb-2">
-                            <i class="fas fa-hand-holding me-1"></i>
-                            Đăng ký mượn sách
-                        </a>
-                    <% } else if (!user) { %>
-                        <a href="/auth/login" class="btn btn-primary w-100 mb-2">
-                            <i class="fas fa-sign-in-alt me-1"></i>
-                            Đăng nhập để mượn sách
-                        </a>
-                    <% } else { %>
-                        <button class="btn btn-secondary w-100 mb-2" disabled>
-                            <i class="fas fa-times me-1"></i>
-                            Hết sách
-                        </button>
-                    <% } %>
-                    
-                    <div class="rating mb-2">
-                        <% if (book.averageRating > 0) { %>
-                            <% for (let i = 1; i <= 5; i++) { %>
-                                <i class="fas fa-star <%= i <= book.averageRating ? 'text-warning' : 'text-muted' %>"></i>
-                            <% } %>
-                            <div class="mt-1">
-                                <small><%= book.averageRating.toFixed(1) %>/5 (<%= book.comments.length %> đánh giá)</small>
-                            </div>
+<style>
+.book-detail-container {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 40px 0;
+}
+
+.book-image-card {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    border: none;
+    background: white;
+    position: sticky;
+    top: 20px;
+}
+
+.book-image-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.book-image-wrapper img {
+    width: 100%;
+    height: auto;
+    transition: transform 0.5s ease;
+}
+
+.book-image-wrapper:hover img {
+    transform: scale(1.05);
+}
+
+.book-actions {
+    padding: 25px;
+}
+
+.btn-borrow {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 1.05rem;
+}
+
+.btn-borrow:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    color: white;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 1.05rem;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.rating-display {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.rating-stars {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.admin-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e2e8f0;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+    color: white;
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3);
+    color: white;
+}
+
+.book-info-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    background: white;
+    overflow: hidden;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px;
+    border: none;
+}
+
+.card-header-custom h4 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+.book-details-content {
+    padding: 30px;
+}
+
+.detail-row {
+    display: flex;
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #475569;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+}
+
+.detail-label i {
+    margin-right: 10px;
+    color: #667eea;
+    width: 20px;
+}
+
+.detail-value {
+    color: #1e293b;
+    flex: 1;
+}
+
+.summary-section {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.branch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.branch-card {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.branch-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2);
+}
+
+.branch-name {
+    font-weight: 600;
+    color: #1e40af;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+}
+
+.branch-quantity {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-block;
+}
+
+.comments-card {
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    background: white;
+    overflow: hidden;
+}
+
+.comment-form-section {
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2rem;
+    color: #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input:checked ~ label {
+    color: #fbbf24;
+    transform: scale(1.1);
+}
+
+.form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-submit-comment {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-submit-comment:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.comment-item {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    border: 2px solid #f1f5f9;
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    border-color: #e2e8f0;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.comment-user {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 1.05rem;
+}
+
+.comment-date {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.comment-rating {
+    margin: 8px 0;
+}
+
+.comment-text {
+    color: #475569;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+.no-comments {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+}
+
+.no-comments i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: #cbd5e1;
+}
+
+.alert-no-stock {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    color: #92400e;
+}
+
+@media (max-width: 768px) {
+    .book-detail-container {
+        padding: 20px 0;
+    }
+    
+    .book-image-card {
+        position: static;
+        margin-bottom: 20px;
+    }
+    
+    .branch-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+    
+    .detail-row {
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        margin-bottom: 5px;
+    }
+}
+</style>
+
+<div class="book-detail-container">
+    <div class="container">
+        <div class="row">
+            <!-- Book Image & Actions -->
+            <div class="col-lg-4 col-md-5 mb-4">
+                <div class="book-image-card">
+                    <div class="book-image-wrapper">
+                        <img src="<%= book.image %>" alt="<%= book.title %>">
+                    </div>
+                    <div class="book-actions">
+                        <% if (user && book.quantity > 0) { %>
+                            <a href="/books/<%= book._id %>/borrow" class="btn btn-borrow w-100 mb-3">
+                                <i class="fas fa-hand-holding me-2"></i>
+                                Đăng ký mượn sách
+                            </a>
+                        <% } else if (!user) { %>
+                            <a href="/auth/login" class="btn btn-login w-100 mb-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                Đăng nhập để mượn sách
+                            </a>
                         <% } else { %>
-                            <small class="text-muted">Chưa có đánh giá</small>
+                            <button class="btn btn-secondary w-100 mb-3" disabled>
+                                <i class="fas fa-times-circle me-2"></i>
+                                Hết sách
+                            </button>
+                        <% } %>
+                        
+                        <div class="rating-display">
+                            <% if (book.averageRating > 0) { %>
+                                <div class="rating-stars">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                        <i class="fas fa-star <%= i <= book.averageRating ? 'text-warning' : 'text-muted' %>"></i>
+                                    <% } %>
+                                </div>
+                                <div style="font-size: 1.2rem; font-weight: 700; color: #92400e;">
+                                    <%= book.averageRating.toFixed(1) %>/5
+                                </div>
+                                <small style="color: #78350f;">
+                                    (<%= book.comments.length %> đánh giá)
+                                </small>
+                            <% } else { %>
+                                <div style="color: #78350f;">
+                                    <i class="fas fa-star-half-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                                    <div>Chưa có đánh giá</div>
+                                </div>
+                            <% } %>
+                        </div>
+
+                        <% if (user && user.role === 'admin') { %>
+                            <div class="admin-section">
+                                <a href="/admin/books/<%= book._id %>/edit" class="btn btn-edit w-100 mb-2">
+                                    <i class="fas fa-edit me-2"></i>Chỉnh sửa sách
+                                </a>
+                                <button class="btn btn-delete w-100" onclick="deleteBook('<%= book._id %>', '<%= book.title %>')">
+                                    <i class="fas fa-trash-alt me-2"></i>Xóa sách
+                                </button>
+                            </div>
                         <% } %>
                     </div>
-
-                    <% if (user && user.role === 'admin') { %>
-                        <hr>
-                        <div class="admin-actions">
-                            <a href="/admin/books/<%= book._id %>/edit" class="btn btn-info w-100 mb-2">
-                                <i class="fas fa-edit me-1"></i>Chỉnh sửa sách
-                            </a>
-                            <button class="btn btn-danger w-100" onclick="deleteBook('<%= book._id %>', '<%= book.title %>')">
-                                <i class="fas fa-trash-alt me-1"></i>Xóa sách
-                            </button>
+                </div>
+            </div>
+            
+            <!-- Book Details -->
+            <div class="col-lg-8 col-md-7">
+                <div class="book-info-card">
+                    <div class="card-header-custom">
+                        <h4><%= book.title %></h4>
+                    </div>
+                    <div class="book-details-content">
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-barcode"></i>
+                                Mã sách:
+                            </div>
+                            <div class="detail-value"><%= book.bookId %></div>
                         </div>
-                    <% } %>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-book"></i>
+                                Tên sách:
+                            </div>
+                            <div class="detail-value"><%= book.title %></div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-user"></i>
+                                Tác giả:
+                            </div>
+                            <div class="detail-value"><%= book.author %></div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-calendar"></i>
+                                Năm xuất bản:
+                            </div>
+                            <div class="detail-value"><%= book.year %></div>
+                        </div>
+                        
+                        <div class="detail-row">
+                            <div class="detail-label">
+                                <i class="fas fa-tag"></i>
+                                Thể loại:
+                            </div>
+                            <div class="detail-value">
+                                <span style="background: linear-gradient(135deg, #ddd6fe 0%, #c7d2fe 100%); padding: 5px 15px; border-radius: 20px; color: #5b21b6; font-weight: 600;">
+                                    <%= book.genre %>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-section">
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 10px;">
+                                <i class="fas fa-align-left me-2"></i>Tóm tắt:
+                            </div>
+                            <p style="color: #475569; line-height: 1.8; margin: 0; text-align: justify;">
+                                <%= book.summary %>
+                            </p>
+                        </div>
+                        
+                        <div style="margin-top: 30px;">
+                            <div style="font-weight: 600; color: #1e293b; margin-bottom: 15px; font-size: 1.1rem;">
+                                <i class="fas fa-map-marker-alt me-2"></i>Chi nhánh còn hàng:
+                            </div>
+                            <% if (availableBranches.length > 0) { %>
+                                <div class="branch-grid">
+                                    <% availableBranches.forEach(branch => { %>
+                                        <div class="branch-card">
+                                            <div class="branch-name">
+                                                Chi nhánh <%= branch.name %>
+                                            </div>
+                                            <span class="branch-quantity">
+                                                <%= branch.quantity %> quyển
+                                            </span>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            <% } else { %>
+                                <div class="alert-no-stock">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Tất cả chi nhánh đều hết sách
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         
-        <!-- Book Details -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0"><%= book.title %></h4>
-                </div>
-                <div class="card-body">
-                    <div class="book-detail-info">
-                        <p><strong>Mã sách:</strong> <%= book.bookId %></p>
-                        <p><strong>Tên sách:</strong> <%= book.title %></p>
-                        <p><strong>Tác giả:</strong> <%= book.author %></p>
-                        <p><strong>Năm xuất bản:</strong> <%= book.year %></p>
-                        <p><strong>Thể loại:</strong> <%= book.genre %></p>
-                        <p><strong>Tóm tắt:</strong></p>
-                        <p class="text-justify"><%= book.summary %></p>
+        <!-- Comments Section -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="comments-card">
+                    <div class="card-header-custom">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comments me-3"></i>
+                            Bình luận và đánh giá
+                        </h5>
+                    </div>
+                    <div style="padding: 30px;">
+                        <!-- Add Comment Form -->
+                        <% if (user) { %>
+                            <div class="comment-form-section">
+                                <h6 style="color: #1e293b; font-weight: 600; margin-bottom: 20px;">
+                                    <i class="fas fa-pen me-2"></i>Viết đánh giá của bạn
+                                </h6>
+                                <form id="commentForm">
+                                    <div class="mb-3">
+                                        <label class="form-label" style="font-weight: 600; color: #475569;">
+                                            Đánh giá của bạn:
+                                        </label>
+                                        <div class="star-rating">
+                                            <input type="radio" id="star5" name="rating" value="5">
+                                            <label for="star5">★</label>
+                                            <input type="radio" id="star4" name="rating" value="4">
+                                            <label for="star4">★</label>
+                                            <input type="radio" id="star3" name="rating" value="3">
+                                            <label for="star3">★</label>
+                                            <input type="radio" id="star2" name="rating" value="2">
+                                            <label for="star2">★</label>
+                                            <input type="radio" id="star1" name="rating" value="1">
+                                            <label for="star1">★</label>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="comment" class="form-label" style="font-weight: 600; color: #475569;">
+                                            Bình luận:
+                                        </label>
+                                        <textarea class="form-control" id="comment" name="comment" rows="4" 
+                                                  placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-submit-comment">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        Gửi bình luận
+                                    </button>
+                                </form>
+                            </div>
+                        <% } else { %>
+                            <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 25px;">
+                                <i class="fas fa-info-circle me-2" style="color: #1e40af;"></i>
+                                <span style="color: #1e40af;">
+                                    <a href="/auth/login" style="color: #1e40af; font-weight: 600; text-decoration: underline;">Đăng nhập</a> để có thể bình luận và đánh giá sách.
+                                </span>
+                            </div>
+                        <% } %>
                         
-                        <p><strong>Chi nhánh còn hàng:</strong></p>
-                        <div class="row">
-                            <% availableBranches.forEach(branch => { %>
-                                <div class="col-md-3 mb-2">
-                                    <div class="alert alert-info text-center py-2">
-                                        <strong>Chi nhánh <%= branch.name %></strong><br>
-                                        <span class="badge bg-success"><%= branch.quantity %> quyển</span>
-                                    </div>
+                        <!-- Comments List -->
+                        <div id="commentsList">
+                            <% if (book.comments.length === 0) { %>
+                                <div class="no-comments">
+                                    <i class="fas fa-comments"></i>
+                                    <p>Chưa có bình luận nào. Hãy là người đầu tiên đánh giá cuốn sách này!</p>
                                 </div>
-                            <% }) %>
-                            <% if (availableBranches.length === 0) { %>
-                                <div class="col-12">
-                                    <div class="alert alert-warning text-center">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        Tất cả chi nhánh đều hết sách
+                            <% } else { %>
+                                <h6 style="color: #1e293b; font-weight: 600; margin-bottom: 20px;">
+                                    Tất cả đánh giá (<%= book.comments.length %>)
+                                </h6>
+                                <% book.comments.forEach(comment => { %>
+                                    <div class="comment-item">
+                                        <div class="comment-header">
+                                            <span class="comment-user">
+                                                <i class="fas fa-user-circle me-2" style="color: #667eea;"></i>
+                                                <%= comment.username %>
+                                            </span>
+                                            <span class="comment-date">
+                                                <i class="far fa-clock me-1"></i>
+                                                <%= comment.date.toLocaleDateString('vi-VN') %>
+                                            </span>
+                                        </div>
+                                        <div class="comment-rating">
+                                            <% for (let i = 1; i <= 5; i++) { %>
+                                                <i class="fas fa-star <%= i <= comment.rating ? 'text-warning' : 'text-muted' %>"></i>
+                                            <% } %>
+                                        </div>
+                                        <p class="comment-text"><%= comment.comment %></p>
                                     </div>
-                                </div>
+                                <% }) %>
                             <% } %>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Comments Section -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-comments me-2"></i>
-                        Bình luận và đánh giá
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <!-- Add Comment Form -->
-                    <% if (user) { %>
-                        <form id="commentForm" class="mb-4">
-                            <div class="mb-3">
-                                <label for="rating" class="form-label">Đánh giá:</label>
-                                <div class="star-rating">
-                                    <input type="radio" id="star5" name="rating" value="5">
-                                    <label for="star5">★</label>
-                                    <input type="radio" id="star4" name="rating" value="4">
-                                    <label for="star4">★</label>
-                                    <input type="radio" id="star3" name="rating" value="3">
-                                    <label for="star3">★</label>
-                                    <input type="radio" id="star2" name="rating" value="2">
-                                    <label for="star2">★</label>
-                                    <input type="radio" id="star1" name="rating" value="1">
-                                    <label for="star1">★</label>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Bình luận:</label>
-                                <textarea class="form-control" id="comment" name="comment" rows="3" 
-                                          placeholder="Chia sẻ cảm nhận của bạn về cuốn sách này..."></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-1"></i>
-                                Gửi bình luận
-                            </button>
-                        </form>
-                        <hr>
-                    <% } else { %>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <a href="/auth/login">Đăng nhập</a> để có thể bình luận và đánh giá sách.
-                        </div>
-                    <% } %>
-                    
-                    <!-- Comments List -->
-                    <div id="commentsList">
-                        <% if (book.comments.length === 0) { %>
-                            <p class="text-muted text-center">Chưa có bình luận nào.</p>
-                        <% } else { %>
-                            <% book.comments.forEach(comment => { %>
-                                <div class="comment-item">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <strong><%= comment.username %></strong>
-                                            <div class="rating mb-1">
-                                                <% for (let i = 1; i <= 5; i++) { %>
-                                                    <i class="fas fa-star <%= i <= comment.rating ? 'text-warning' : 'text-muted' %>"></i>
-                                                <% } %>
-                                            </div>
-                                            <p class="mb-1"><%= comment.comment %></p>
-                                        </div>
-                                        <small class="text-muted"><%= comment.date.toLocaleDateString('vi-VN') %></small>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        <% } %>
                     </div>
                 </div>
             </div>
@@ -221,7 +675,7 @@ async function deleteBook(bookId, bookTitle) {
         
         if (result.success) {
             alert(result.message);
-            window.location.href = '/books'; // Redirect to book list after deletion
+            window.location.href = '/books';
         } else {
             alert(result.error || 'Có lỗi xảy ra khi xóa sách');
         }

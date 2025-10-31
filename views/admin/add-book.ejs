@@ -1,142 +1,496 @@
 <%- include('../layouts/main') %>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-plus me-2"></i>
-                        Thêm sách mới
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <form id="addBookForm" enctype="multipart/form-data">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="bookId" class="form-label">
-                                        <i class="fas fa-barcode me-1"></i>Mã sách *
+<style>
+.add-book-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+.page-header {
+    text-align: center;
+    color: white;
+    margin-bottom: 2rem;
+    animation: fadeInDown 0.6s ease;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.form-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    animation: fadeInUp 0.6s ease;
+}
+
+.form-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: pulse 15s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.form-header i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.form-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.form-header p {
+    position: relative;
+    z-index: 1;
+    opacity: 0.9;
+}
+
+.form-body {
+    padding: 2.5rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    color: #667eea;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #667eea;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    color: #4a5568;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-group label i {
+    color: #667eea;
+    margin-right: 0.5rem;
+}
+
+.form-control-modern {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.form-control-modern:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.form-control-modern:hover {
+    border-color: #cbd5e0;
+}
+
+textarea.form-control-modern {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.required {
+    color: #e53e3e;
+}
+
+.file-upload-zone {
+    border: 2px dashed #cbd5e0;
+    border-radius: 15px;
+    padding: 2.5rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.file-upload-zone:hover {
+    border-color: #667eea;
+    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+    transform: translateY(-2px);
+}
+
+.file-upload-zone input[type="file"] {
+    display: none;
+}
+
+.file-upload-content i {
+    font-size: 3.5rem;
+    color: #667eea;
+    margin-bottom: 1rem;
+    display: block;
+}
+
+.file-upload-content p {
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.file-upload-content .file-name {
+    color: #667eea;
+    font-weight: 700;
+    margin-top: 1rem;
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.helper-text {
+    font-size: 0.875rem;
+    color: #718096;
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+.branch-section {
+    background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.branch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.branch-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.branch-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+.branch-item label {
+    display: block;
+    color: #4a5568;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.branch-item label i {
+    color: #667eea;
+    margin-right: 0.5rem;
+}
+
+.branch-item input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.branch-item input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e8eaf6;
+}
+
+.btn-modern {
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+    color: #4a5568;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-secondary:hover {
+    background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+    transform: translateY(-3px);
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+
+    .form-body {
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .branch-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-modern {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<div class="add-book-container">
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-book-medical"></i> Quản Lý Thư Viện</h1>
+            <p>Thêm sách mới vào hệ thống một cách dễ dàng và nhanh chóng</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="form-card">
+                    <div class="form-header">
+                        <i class="fas fa-plus-circle"></i>
+                        <h2>Thêm Sách Mới Vào Hệ Thống</h2>
+                        <p>Điền đầy đủ thông tin để thêm sách vào thư viện</p>
+                    </div>
+
+                    <div class="form-body">
+                        <form id="addBookForm" action="/admin/books/add" method="POST" enctype="multipart/form-data">
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    Thông Tin Cơ Bản
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>
+                                            <i class="fas fa-barcode"></i>Mã Sách <span class="required">*</span>
+                                        </label>
+                                        <input type="text" class="form-control-modern" id="bookId" name="bookId" placeholder="Nhập mã sách (VD: BK001)" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            <i class="fas fa-book"></i>Tên Sách <span class="required">*</span>
+                                        </label>
+                                        <input type="text" class="form-control-modern" id="title" name="title" placeholder="Nhập tên sách" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>
+                                            <i class="fas fa-user-pen"></i>Tác Giả <span class="required">*</span>
+                                        </label>
+                                        <input type="text" class="form-control-modern" id="author" name="author" placeholder="Nhập tên tác giả" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            <i class="fas fa-calendar-days"></i>Năm Xuất Bản <span class="required">*</span>
+                                        </label>
+                                        <input type="number" class="form-control-modern" id="year" name="year" min="1900" max="2025" placeholder="2025" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>
+                                            <i class="fas fa-tags"></i>Thể Loại <span class="required">*</span>
+                                        </label>
+                                        <input type="text" class="form-control-modern" id="genre" name="genre" placeholder="VD: Văn học, Khoa học..." required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>
+                                        <i class="fas fa-align-left"></i>Tóm Tắt Nội Dung <span class="required">*</span>
                                     </label>
-                                    <input type="text" class="form-control" id="bookId" name="bookId" required>
+                                    <textarea class="form-control-modern" id="summary" name="summary" placeholder="Nhập tóm tắt ngắn gọn về nội dung sách..." required></textarea>
+                                    <p class="helper-text">Mô tả ngắn gọn về nội dung chính của cuốn sách</p>
                                 </div>
                             </div>
-                            
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="title" class="form-label">
-                                        <i class="fas fa-book me-1"></i>Tên sách *
-                                    </label>
-                                    <input type="text" class="form-control" id="title" name="title" required>
+
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-image"></i>
+                                    Hình Ảnh Bìa Sách
+                                </div>
+
+                                <div class="file-upload-zone" onclick="document.getElementById('imageInput').click()">
+                                    <div class="file-upload-content">
+                                        <input type="file" id="imageInput" name="image" accept="image/*" onchange="updateFileName(this)">
+                                        <i class="fas fa-cloud-arrow-up"></i>
+                                        <p><strong>Nhấn để tải ảnh lên</strong> hoặc kéo thả file vào đây</p>
+                                        <p class="helper-text">Chấp nhận JPG, PNG. Tối đa 5MB</p>
+                                        <div class="file-name" id="fileName"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="author" class="form-label">
-                                        <i class="fas fa-user me-1"></i>Tác giả *
-                                    </label>
-                                    <input type="text" class="form-control" id="author" name="author" required>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="year" class="form-label">
-                                        <i class="fas fa-calendar me-1"></i>Năm xuất bản *
-                                    </label>
-                                    <input type="number" class="form-control" id="year" name="year" 
-                                           min="1900" max="<%= new Date().getFullYear() %>" required>
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-3">
-                                <div class="mb-3">
-                                    <label for="genre" class="form-label">
-                                        <i class="fas fa-tag me-1"></i>Thể loại *
-                                    </label>
-                                    <input type="text" class="form-control" id="genre" name="genre" required>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="summary" class="form-label">
-                                <i class="fas fa-align-left me-1"></i>Tóm tắt *
-                            </label>
-                            <textarea class="form-control" id="summary" name="summary" rows="4" required></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="image" class="form-label">
-                                <i class="fas fa-image me-1"></i>Ảnh bìa sách
-                            </label>
-                            <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                            <div class="form-text">Chấp nhận file JPG, PNG. Tối đa 5MB.</div>
-                        </div>
-                        
-                        <div class="card border-info mb-3">
-                            <div class="card-header bg-info text-white">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-warehouse me-2"></i>
-                                    Phân bố theo chi nhánh
-                                </h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchA" class="form-label">Chi nhánh A</label>
-                                            <input type="number" class="form-control" id="branchA" name="branchA" 
-                                                   min="0" value="0">
+
+                            <div class="form-section">
+                                <div class="branch-section">
+                                    <div class="section-title">
+                                        <i class="fas fa-building"></i>
+                                        Phân Bố Số Lượng Theo Chi Nhánh
+                                    </div>
+
+                                    <div class="branch-grid">
+                                        <div class="branch-item">
+                                            <label><i class="fas fa-location-dot"></i> Chi Nhánh A</label>
+                                            <input type="number" class="form-control-modern" name="branchA" min="0" value="0" placeholder="0">
+                                        </div>
+
+                                        <div class="branch-item">
+                                            <label><i class="fas fa-location-dot"></i> Chi Nhánh B</label>
+                                            <input type="number" class="form-control-modern" name="branchB" min="0" value="0" placeholder="0">
+                                        </div>
+
+                                        <div class="branch-item">
+                                            <label><i class="fas fa-location-dot"></i> Chi Nhánh C</label>
+                                            <input type="number" class="form-control-modern" name="branchC" min="0" value="0" placeholder="0">
+                                        </div>
+
+                                        <div class="branch-item">
+                                            <label><i class="fas fa-location-dot"></i> Chi Nhánh D</label>
+                                            <input type="number" class="form-control-modern" name="branchD" min="0" value="0" placeholder="0">
                                         </div>
                                     </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchB" class="form-label">Chi nhánh B</label>
-                                            <input type="number" class="form-control" id="branchB" name="branchB" 
-                                                   min="0" value="0">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchC" class="form-label">Chi nhánh C</label>
-                                            <input type="number" class="form-control" id="branchC" name="branchC" 
-                                                   min="0" value="0">
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="mb-3">
-                                            <label for="branchD" class="form-label">Chi nhánh D</label>
-                                            <input type="number" class="form-control" id="branchD" name="branchD" 
-                                                   min="0" value="0">
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="alert alert-info mb-0">
-                                    <small>
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        Tổng số sách: <span id="totalBooks">0</span> quyển
-                                    </small>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="/admin/distribute" class="btn btn-secondary me-md-2">
-                                <i class="fas fa-list me-1"></i>Danh sách sách
-                            </a>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i>Thêm sách
-                            </button>
-                        </div>
-                    </form>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn-modern btn-secondary" onclick="resetForm()">
+                                    <i class="fas fa-rotate-left"></i>
+                                    Đặt Lại
+                                </button>
+                                <button type="submit" class="btn-modern btn-primary">
+                                    <i class="fas fa-check-circle"></i>
+                                    Thêm Sách
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -144,46 +498,64 @@
 </div>
 
 <script>
-// Calculate total books
-function updateTotal() {
-    const branchA = parseInt(document.getElementById('branchA').value) || 0;
-    const branchB = parseInt(document.getElementById('branchB').value) || 0;
-    const branchC = parseInt(document.getElementById('branchC').value) || 0;
-    const branchD = parseInt(document.getElementById('branchD').value) || 0;
-    
-    const total = branchA + branchB + branchC + branchD;
-    document.getElementById('totalBooks').textContent = total;
+function updateFileName(input) {
+    const fileName = document.getElementById('fileName');
+    if (input.files && input.files[0]) {
+        fileName.innerHTML = `<i class="fas fa-check-circle me-2"></i>Đã chọn: ${input.files[0].name}`;
+        fileName.style.display = 'block';
+    } else {
+        fileName.textContent = '';
+        fileName.style.display = 'none';
+    }
 }
 
-// Add event listeners
-document.getElementById('branchA').addEventListener('input', updateTotal);
-document.getElementById('branchB').addEventListener('input', updateTotal);
-document.getElementById('branchC').addEventListener('input', updateTotal);
-document.getElementById('branchD').addEventListener('input', updateTotal);
+function resetForm() {
+    if (confirm('Bạn có chắc chắn muốn đặt lại form? Tất cả dữ liệu đã nhập sẽ bị xóa.')) {
+        document.getElementById('addBookForm').reset();
+        document.getElementById('fileName').textContent = '';
+        document.getElementById('fileName').style.display = 'none';
+    }
+}
 
-// Form submission
-document.getElementById('addBookForm').addEventListener('submit', async function(e) {
+document.getElementById('addBookForm').addEventListener('submit', function(e) {
+    const bookId = document.getElementById('bookId').value;
+    const title = document.getElementById('title').value;
+    const author = document.getElementById('author').value;
+    
+    if (!bookId || !title || !author) {
+        e.preventDefault();
+        alert('⚠️ Vui lòng điền đầy đủ các thông tin bắt buộc!');
+        return false;
+    }
+    
+    // Form sẽ submit bình thường đến server
+    // Không cần e.preventDefault() nếu muốn submit thật
+});
+
+// Drag and drop support
+const dropZone = document.querySelector('.file-upload-zone');
+
+dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
+    dropZone.style.borderColor = '#667eea';
+    dropZone.style.background = 'linear-gradient(135deg, #e0e7ff 0%, #ddd6fe 100%)';
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#cbd5e0';
+    dropZone.style.background = 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)';
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.borderColor = '#cbd5e0';
+    dropZone.style.background = 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)';
     
-    const formData = new FormData(this);
-    
-    try {
-        const response = await fetch('/admin/add-book', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            alert(result.message);
-            this.reset();
-            updateTotal();
-        } else {
-            alert(result.error || 'Có lỗi xảy ra');
-        }
-    } catch (error) {
-        alert('Có lỗi xảy ra khi thêm sách');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('imageInput').files = files;
+        updateFileName(document.getElementById('imageInput'));
     }
 });
 </script>

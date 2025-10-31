@@ -1,55 +1,89 @@
 <%- include('../layouts/main') %>
-
-<div class="container">
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white text-center">
-                    <h3 class="mb-0">
-                        <i class="fas fa-sign-in-alt me-2"></i>
-                        Đăng nhập
-                    </h3>
+        <div class="col-md-5 col-lg-4">
+            <div class="card auth-card shadow-lg border-0">
+                <div class="card-header text-center py-4">
+                    <div class="auth-icon mb-3">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <h3 class="mb-0 fw-bold">Đăng nhập</h3>
+                    <p class="text-muted mb-0 small">Chào mừng trở lại!</p>
                 </div>
-                <div class="card-body">
-                    <% if (error) { %>
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <%= error %>
+                <div class="card-body p-4">
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Lỗi!</strong> <%= error %>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <% } %>
                     
-                    <% if (typeof success !== 'undefined') { %>
-                        <div class="alert alert-success">
+                    <% if (typeof success !== 'undefined' && success === true) { %>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="fas fa-check-circle me-2"></i>
-                            Đăng ký thành công! Vui lòng đăng nhập.
+                            <strong>Thành công!</strong> Đăng ký thành công! Vui lòng đăng nhập.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     <% } %>
                     
                     <form method="POST" action="/auth/login">
                         <div class="mb-3">
-                            <label for="username" class="form-label">
-                                <i class="fas fa-user me-1"></i>Tên đăng nhập
+                            <label for="username" class="form-label fw-semibold">
+                                <i class="fas fa-user text-primary me-1"></i>Tên đăng nhập
                             </label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="username" 
+                                name="username" 
+                                placeholder="Nhập tên đăng nhập"
+                                required
+                                autocomplete="username"
+                            >
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock me-1"></i>Mật khẩu
+                        <div class="mb-4">
+                            <label for="password" class="form-label fw-semibold">
+                                <i class="fas fa-lock text-primary me-1"></i>Mật khẩu
                             </label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="input-group">
+                                <input 
+                                    type="password" 
+                                    class="form-control form-control-lg" 
+                                    id="password" 
+                                    name="password" 
+                                    placeholder="Nhập mật khẩu"
+                                    required
+                                    autocomplete="current-password"
+                                >
+                                <button 
+                                    class="btn btn-outline-secondary" 
+                                    type="button" 
+                                    id="togglePassword"
+                                    onclick="togglePasswordVisibility()"
+                                >
+                                    <i class="fas fa-eye" id="toggleIcon"></i>
+                                </button>
+                            </div>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-sign-in-alt me-1"></i>Đăng nhập
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Đăng nhập
                             </button>
                         </div>
                     </form>
                     
-                    <div class="text-center mt-3">
-                        <p class="mb-0">Chưa có tài khoản? 
-                            <a href="/auth/register" class="text-decoration-none">Đăng ký ngay</a>
+                    <div class="text-center">
+                        <div class="divider my-3">
+                            <span class="divider-text">hoặc</span>
+                        </div>
+                        <p class="mb-0">
+                            Chưa có tài khoản? 
+                            <a href="/auth/register" class="text-decoration-none fw-semibold">
+                                Đăng ký ngay <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -57,3 +91,86 @@
         </div>
     </div>
 </div>
+
+<style>
+.auth-card {
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease;
+}
+
+.auth-card .card-header {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: white;
+    border: none;
+}
+
+.auth-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    backdrop-filter: blur(10px);
+}
+
+.auth-icon i {
+    font-size: 2rem;
+    color: white;
+}
+
+.form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.divider-text {
+    padding: 0 1rem;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+    }
+}
+</script>

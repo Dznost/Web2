@@ -1,120 +1,750 @@
 <html lang="vi">
 <%- include('../layouts/main') %>
 
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">
-                        <i class="fas fa-shopping-cart me-2"></i>
-                        Giỏ hàng của tôi
-                    </h4>
+<div class="container mt-4 mb-5">
+    <!-- Header Section -->
+    <div class="page-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="mb-1">
+                    <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                    Giỏ hàng của tôi
+                </h2>
+                <p class="text-muted mb-0">Quản lý các yêu cầu mượn sách của bạn</p>
+            </div>
+            <% if (borrowRequests.length > 0) { %>
+            <div>
+                <span class="badge bg-primary fs-6 px-3 py-2">
+                    <i class="fas fa-book me-1"></i>
+                    <%= borrowRequests.length %> yêu cầu
+                </span>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <% if (borrowRequests.length > 0) { %>
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
                 </div>
-                <div class="card-body">
-                    <% if (borrowRequests.length === 0) { %>
-                        <div class="text-center py-5">
-                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Giỏ hàng trống</h5>
-                            <p class="text-muted">Bạn chưa đăng ký mượn sách nào.</p>
-                            <a href="/books" class="btn btn-primary">
-                                <i class="fas fa-book me-1"></i>Tìm sách
-                            </a>
-                        </div>
-                    <% } else { %>
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>Sách</th>
-                                        <th>Mã xác nhận</th>
-                                        <th>Chi nhánh</th>
-                                        <th>Ngày đăng ký</th>
-                                        <th>Ngày nhận</th>
-                                        <th>Ngày mượn</th>
-                                        <th>Ngày trả</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% borrowRequests.forEach(request => { %>
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <img src="<%= request.bookId?.image || '/images/default-book.jpg' %>" 
-                                                         class="me-3" style="width: 50px; height: 60px; object-fit: cover;">
-                                                    <div>
-                                                        <h6 class="mb-0"><%= request.bookTitle %></h6>
-                                                        <small class="text-muted">Mã: <%= request.bookCode %></small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <code class="bg-light p-1 rounded"><%= request.confirmationCode || '---' %></code>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info">Chi nhánh <%= request.branch %></span>
-                                            </td>
-                                            <td><%= request.requestDate ? request.requestDate.toLocaleDateString('vi-VN') : '---' %></td>
-                                            <td><%= request.expectedReceiveDate ? request.expectedReceiveDate.toLocaleDateString('vi-VN') : '---' %></td>
-                                            <td>
-                                                <% if (request.borrowDate) { %>
-                                                    <%= request.borrowDate.toLocaleDateString('vi-VN') %>
-                                                <% } else { %>
-                                                    <em class="text-muted">Chưa mượn</em>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <% if (request.actualReturnDate) { %>
-                                                    <%= request.actualReturnDate.toLocaleDateString('vi-VN') %>
-                                                <% } else if (request.status === 'returned') { %>
-                                                    <em class="text-muted">Không rõ</em>
-                                                <% } else if (request.returnDate) { %>
-                                                    <%= request.returnDate.toLocaleDateString('vi-VN') %>
-                                                <% } else { %>
-                                                    <em class="text-muted">Chưa trả</em>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <% if (request.status === 'pending') { %>
-                                                    <span class="badge bg-warning">Chờ xử lý</span>
-                                                <% } else if (request.status === 'approved') { %>
-                                                    <span class="badge bg-info">Đã duyệt</span>
-                                                <% } else if (request.status === 'borrowed') { %>
-                                                    <span class="badge bg-success">Đã mượn</span>
-                                                <% } else if (request.status === 'returned') { %>
-                                                    <span class="badge bg-secondary">Đã trả</span>
-                                                <% } else if (request.status === 'cancelled') { %>
-                                                    <span class="badge bg-danger">Đã hủy</span>
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <% if (request.status === 'pending') { %>
-                                                    <button class="btn btn-sm btn-outline-danger" 
-                                                            onclick="cancelRequest('<%= request._id %>')">
-                                                        <i class="fas fa-times"></i> Hủy
-                                                    </button>
-                                                <% } else if (request.status === 'returned' && request.fine > 0) { %>
-                                                    <span class="text-danger">
-                                                        <i class="fas fa-exclamation-triangle"></i>
-                                                        Phí: <%= request.fine.toLocaleString() %> VND
-                                                    </span>
-                                                <% } %>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
-                    <% } %>
+                <div class="stat-content">
+                    <div class="stat-value"><%= borrowRequests.filter(r => r.status === 'pending').length %></div>
+                    <div class="stat-label">Chờ xử lý</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card stat-card-info">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value"><%= borrowRequests.filter(r => r.status === 'approved').length %></div>
+                    <div class="stat-label">Đã duyệt</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value"><%= borrowRequests.filter(r => r.status === 'borrowed').length %></div>
+                    <div class="stat-label">Đang mượn</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="stat-card stat-card-secondary">
+                <div class="stat-icon">
+                    <i class="fas fa-undo"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value"><%= borrowRequests.filter(r => r.status === 'returned').length %></div>
+                    <div class="stat-label">Đã trả</div>
                 </div>
             </div>
         </div>
     </div>
+    <% } %>
+
+    <!-- Filter Tabs -->
+    <% if (borrowRequests.length > 0) { %>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <ul class="nav nav-pills filter-tabs" id="statusFilter">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#" data-filter="all">
+                        <i class="fas fa-list me-1"></i>Tất cả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filter="pending">
+                        <i class="fas fa-clock me-1"></i>Chờ xử lý
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filter="approved">
+                        <i class="fas fa-check-circle me-1"></i>Đã duyệt
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filter="borrowed">
+                        <i class="fas fa-book-reader me-1"></i>Đang mượn
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filter="returned">
+                        <i class="fas fa-undo me-1"></i>Đã trả
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-filter="cancelled">
+                        <i class="fas fa-times-circle me-1"></i>Đã hủy
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <% } %>
+
+    <!-- Main Content -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <% if (borrowRequests.length === 0) { %>
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h4 class="empty-title">Giỏ hàng trống</h4>
+                    <p class="empty-text">Bạn chưa đăng ký mượn sách nào. Hãy khám phá thư viện của chúng tôi!</p>
+                    <a href="/books" class="btn btn-primary btn-lg px-4">
+                        <i class="fas fa-search me-2"></i>Tìm kiếm sách
+                    </a>
+                </div>
+            <% } else { %>
+                <!-- Desktop View - Table -->
+                <div class="table-responsive d-none d-lg-block">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-header">
+                            <tr>
+                                <th style="width: 35%;">Thông tin sách</th>
+                                <th style="width: 10%;">Mã xác nhận</th>
+                                <th style="width: 10%;">Chi nhánh</th>
+                                <th style="width: 12%;">Ngày đăng ký</th>
+                                <th style="width: 12%;">Hạn trả</th>
+                                <th style="width: 10%;">Trạng thái</th>
+                                <th style="width: 11%;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% borrowRequests.forEach(request => { %>
+                                <tr class="request-row" data-status="<%= request.status %>">
+                                    <td>
+                                        <div class="book-info">
+                                            <img src="<%= request.bookId?.image || '/images/default-book.jpg' %>" 
+                                                 class="book-thumb"
+                                                 alt="<%= request.bookTitle %>">
+                                            <div>
+                                                <h6 class="book-title mb-1"><%= request.bookTitle %></h6>
+                                                <small class="book-code">
+                                                    <i class="fas fa-barcode me-1"></i><%= request.bookCode %>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% if (request.confirmationCode) { %>
+                                            <code class="confirmation-code"><%= request.confirmationCode %></code>
+                                        <% } else { %>
+                                            <span class="text-muted">---</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="branch-badge">
+                                            <i class="fas fa-map-marker-alt me-1"></i>CN <%= request.branch %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="date-info">
+                                            <i class="fas fa-calendar-plus text-muted me-1"></i>
+                                            <%= request.requestDate ? request.requestDate.toLocaleDateString('vi-VN') : '---' %>
+                                        </div>
+                                        <% if (request.expectedReceiveDate) { %>
+                                            <small class="text-muted d-block mt-1">
+                                                <i class="fas fa-calendar-check me-1"></i>
+                                                Nhận: <%= request.expectedReceiveDate.toLocaleDateString('vi-VN') %>
+                                            </small>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <% if (request.returnDate) { %>
+                                            <div class="date-info">
+                                                <i class="fas fa-calendar-times text-danger me-1"></i>
+                                                <%= request.returnDate.toLocaleDateString('vi-VN') %>
+                                            </div>
+                                            <% if (request.actualReturnDate) { %>
+                                                <small class="text-success d-block mt-1">
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                    Đã trả: <%= request.actualReturnDate.toLocaleDateString('vi-VN') %>
+                                                </small>
+                                            <% } %>
+                                        <% } else { %>
+                                            <em class="text-muted">Chưa xác định</em>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <%- getStatusBadge(request.status) %>
+                                    </td>
+                                    <td>
+                                        <% if (request.status === 'pending') { %>
+                                            <button class="btn btn-sm btn-outline-danger" 
+                                                    onclick="cancelRequest('<%= request._id %>')">
+                                                <i class="fas fa-times me-1"></i>Hủy
+                                            </button>
+                                        <% } else if (request.status === 'approved') { %>
+                                            <button class="btn btn-sm btn-outline-info" disabled>
+                                                <i class="fas fa-hourglass-half me-1"></i>Chờ nhận
+                                            </button>
+                                        <% } else if (request.status === 'borrowed') { %>
+                                            <span class="text-success small fw-semibold">
+                                                <i class="fas fa-book-reader me-1"></i>Đang đọc
+                                            </span>
+                                        <% } else if (request.status === 'returned' && request.fine > 0) { %>
+                                            <div class="fine-alert">
+                                                <i class="fas fa-exclamation-triangle"></i>
+                                                <span><%= request.fine.toLocaleString() %> VNĐ</span>
+                                            </div>
+                                        <% } else { %>
+                                            <span class="text-muted small">---</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile View - Cards -->
+                <div class="d-lg-none">
+                    <% borrowRequests.forEach(request => { %>
+                        <div class="mobile-request-card" data-status="<%= request.status %>">
+                            <div class="mobile-card-header">
+                                <div class="book-info-mobile">
+                                    <img src="<%= request.bookId?.image || '/images/default-book.jpg' %>" 
+                                         class="book-thumb-mobile"
+                                         alt="<%= request.bookTitle %>">
+                                    <div>
+                                        <h6 class="mb-1"><%= request.bookTitle %></h6>
+                                        <small class="text-muted">
+                                            <i class="fas fa-barcode me-1"></i><%= request.bookCode %>
+                                        </small>
+                                    </div>
+                                </div>
+                                <%- getStatusBadge(request.status) %>
+                            </div>
+                            <div class="mobile-card-body">
+                                <div class="info-row">
+                                    <span class="info-label">
+                                        <i class="fas fa-map-marker-alt me-1"></i>Chi nhánh:
+                                    </span>
+                                    <span class="info-value">CN <%= request.branch %></span>
+                                </div>
+                                <% if (request.confirmationCode) { %>
+                                <div class="info-row">
+                                    <span class="info-label">
+                                        <i class="fas fa-qrcode me-1"></i>Mã xác nhận:
+                                    </span>
+                                    <code class="confirmation-code"><%= request.confirmationCode %></code>
+                                </div>
+                                <% } %>
+                                <div class="info-row">
+                                    <span class="info-label">
+                                        <i class="fas fa-calendar-plus me-1"></i>Ngày đăng ký:
+                                    </span>
+                                    <span class="info-value">
+                                        <%= request.requestDate ? request.requestDate.toLocaleDateString('vi-VN') : '---' %>
+                                    </span>
+                                </div>
+                                <% if (request.returnDate) { %>
+                                <div class="info-row">
+                                    <span class="info-label">
+                                        <i class="fas fa-calendar-times me-1"></i>Hạn trả:
+                                    </span>
+                                    <span class="info-value text-danger">
+                                        <%= request.returnDate.toLocaleDateString('vi-VN') %>
+                                    </span>
+                                </div>
+                                <% } %>
+                            </div>
+                            <% if (request.status === 'pending') { %>
+                            <div class="mobile-card-footer">
+                                <button class="btn btn-outline-danger btn-sm w-100" 
+                                        onclick="cancelRequest('<%= request._id %>')">
+                                    <i class="fas fa-times me-1"></i>Hủy yêu cầu
+                                </button>
+                            </div>
+                            <% } else if (request.status === 'returned' && request.fine > 0) { %>
+                            <div class="mobile-card-footer">
+                                <div class="fine-alert-mobile">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Phí phạt: <strong><%= request.fine.toLocaleString() %> VNĐ</strong>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </div>
+    </div>
 </div>
 
+<%
+function getStatusBadge(status) {
+    const badges = {
+        'pending': '<span class="status-badge status-pending"><i class="fas fa-clock me-1"></i>Chờ xử lý</span>',
+        'approved': '<span class="status-badge status-approved"><i class="fas fa-check-circle me-1"></i>Đã duyệt</span>',
+        'borrowed': '<span class="status-badge status-borrowed"><i class="fas fa-book-reader me-1"></i>Đang mượn</span>',
+        'returned': '<span class="status-badge status-returned"><i class="fas fa-check-double me-1"></i>Đã trả</span>',
+        'cancelled': '<span class="status-badge status-cancelled"><i class="fas fa-times-circle me-1"></i>Đã hủy</span>'
+    };
+    return badges[status] || '<span class="badge bg-secondary">Không rõ</span>';
+}
+%>
+
+<style>
+/* Page Header */
+.page-header {
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #e2e8f0;
+}
+
+/* Statistics Cards */
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card-warning {
+    border-left-color: #f59e0b;
+}
+
+.stat-card-info {
+    border-left-color: #06b6d4;
+}
+
+.stat-card-success {
+    border-left-color: #10b981;
+}
+
+.stat-card-secondary {
+    border-left-color: #6b7280;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+}
+
+.stat-card-warning .stat-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #f59e0b;
+}
+
+.stat-card-info .stat-icon {
+    background: linear-gradient(135deg, #cffafe, #a5f3fc);
+    color: #06b6d4;
+}
+
+.stat-card-success .stat-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #10b981;
+}
+
+.stat-card-secondary .stat-icon {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    color: #6b7280;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.filter-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.filter-tabs::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.filter-tabs .nav-link {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    color: #64748b;
+    font-weight: 500;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.filter-tabs .nav-link:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+}
+
+.filter-tabs .nav-link.active {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Table Styles */
+.table-header {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: white;
+}
+
+.table-header th {
+    border: none;
+    padding: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: #f8fafc;
+    transform: scale(1.01);
+}
+
+.table tbody td {
+    padding: 1.25rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Book Info */
+.book-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.book-thumb {
+    width: 60px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.book-title {
+    font-weight: 600;
+    color: #1e293b;
+    font-size: 0.95rem;
+}
+
+.book-code {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* Confirmation Code */
+.confirmation-code {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #1e40af;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border: 2px solid #cbd5e1;
+}
+
+/* Branch Badge */
+.branch-badge {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Date Info */
+.date-info {
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.status-pending {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
+
+.status-approved {
+    background: linear-gradient(135deg, #cffafe, #a5f3fc);
+    color: #155e75;
+}
+
+.status-borrowed {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.status-returned {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    color: #374151;
+}
+
+.status-cancelled {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+}
+
+/* Fine Alert */
+.fine-alert {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+}
+
+.empty-icon i {
+    font-size: 4rem;
+    color: #93c5fd;
+}
+
+.empty-title {
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.empty-text {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+/* Mobile Cards */
+.mobile-request-card {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 1.25rem;
+    transition: background 0.3s ease;
+}
+
+.mobile-request-card:hover {
+    background: #f8fafc;
+}
+
+.mobile-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.book-info-mobile {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.book-thumb-mobile {
+    width: 50px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-card-body {
+    margin-top: 1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.info-value {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.mobile-card-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.fine-alert-mobile {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.request-row, .mobile-request-card {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+}
+</style>
+
 <script>
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filterLinks = document.querySelectorAll('#statusFilter .nav-link');
+    const requestRows = document.querySelectorAll('.request-row, .mobile-request-card');
+    
+    filterLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Update active state
+            filterLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter rows
+            const filter = this.dataset.filter;
+            requestRows.forEach(row => {
+                if (filter === 'all' || row.dataset.status === filter) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+});
+
+// Cancel request function
 async function cancelRequest(requestId) {
     if (!confirm('Bạn có chắc chắn muốn hủy yêu cầu mượn sách này?')) return;
 
@@ -125,14 +755,16 @@ async function cancelRequest(requestId) {
         const result = await response.json();
 
         if (result.success) {
-            alert(result.message);
+            // Show success message
+            alert('✅ ' + result.message);
             location.reload();
         } else {
-            alert(result.error || 'Có lỗi xảy ra');
+            alert('❌ ' + (result.error || 'Có lỗi xảy ra'));
         }
     } catch (error) {
-        alert('Có lỗi xảy ra khi hủy yêu cầu');
+        console.error('Error:', error);
+        alert('❌ Có lỗi xảy ra khi hủy yêu cầu');
     }
 }
 </script>
-</html>e
+</html>

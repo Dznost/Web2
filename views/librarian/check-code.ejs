@@ -1,180 +1,612 @@
 ﻿<%- include('../layouts/main') %>
 
-<div class="container">
+<style>
+/* Variables CSS pour cohérence */
+:root {
+  --primary-blue: #2563eb;
+  --primary-blue-dark: #1e40af;
+  --success-green: #10b981;
+  --warning-orange: #f59e0b;
+  --danger-red: #ef4444;
+  --bg-light: #f8fafc;
+  --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Layout principal */
+.page-wrapper {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 60px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/></svg>');
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Card principal avec glassmorphism */
+.check-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header gradient moderne */
+.card-header-custom {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  padding: 32px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header-custom::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.card-header-custom h4 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.card-header-custom h4 i {
+  font-size: 2rem;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Corps de la card */
+.card-body {
+  padding: 40px;
+}
+
+.intro-text {
+  color: #64748b;
+  font-size: 1.05rem;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* Formulaire de recherche amélioré */
+#checkCodeForm {
+  margin-bottom: 32px;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  gap: 12px;
+}
+
+.form-control {
+  flex: 1;
+  padding: 16px 20px;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: var(--transition);
+  background: white;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  transform: translateY(-2px);
+}
+
+.form-control::placeholder {
+  color: #94a3b8;
+}
+
+.btn-search {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-search:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+.btn-search:active {
+  transform: translateY(-1px);
+}
+
+.btn-search i {
+  font-size: 1.1rem;
+}
+
+/* Zone de résultats avec design premium */
+#borrowRequestDetails {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  border: 2px solid #e2e8f0;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#borrowRequestDetails h5 {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 28px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#borrowRequestDetails h5::before {
+  content: '✨';
+  font-size: 1.5rem;
+}
+
+/* Image du livre avec effet */
+.book-image-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.book-image-wrapper img {
+  width: 100%;
+  height: auto;
+  transition: var(--transition);
+  display: block;
+}
+
+.book-image-wrapper:hover img {
+  transform: scale(1.05);
+}
+
+/* Informations détaillées */
+.info-row {
+  display: flex;
+  padding: 14px 0;
+  border-bottom: 1px solid #e2e8f0;
+  transition: var(--transition);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row:hover {
+  background: rgba(37, 99, 235, 0.03);
+  padding-left: 12px;
+  margin-left: -12px;
+  border-radius: 8px;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #475569;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-label i {
+  color: var(--primary-blue);
+  font-size: 0.9rem;
+}
+
+.info-value {
+  color: #0f172a;
+  flex: 1;
+  font-weight: 500;
+}
+
+/* Badges modernes */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 2px solid;
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.badge-info {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  color: #1e40af;
+  border-color: #93c5fd;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  color: #065f46;
+  border-color: #6ee7b7;
+}
+
+.badge-secondary {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
+/* Alerte moderne */
+#noResultAlert {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #fcd34d;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  font-weight: 500;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-10px); }
+  75% { transform: translateX(10px); }
+}
+
+#noResultAlert i {
+  font-size: 1.5rem;
+}
+
+/* Loading state */
+.btn-search.loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn-search.loading i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 30px 15px;
+  }
+  
+  .card-body {
+    padding: 24px 20px;
+  }
+  
+  .search-wrapper {
+    flex-direction: column;
+  }
+  
+  .btn-search {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .info-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .info-label {
+    min-width: auto;
+  }
+}
+</style>
+
+<div class="page-wrapper">
+  <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-qrcode me-2"></i>
-                        Kiểm tra mã xác nhận
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-4">
-                        Nhập mã xác nhận mượn sách để xem thông tin chi tiết.
-                    </p>
+      <div class="col-md-10 col-lg-9">
+        <div class="check-card card">
+          <div class="card-header-custom">
+            <h4>
+              <i class="fas fa-qrcode"></i>
+              Kiểm tra mã xác nhận
+            </h4>
+          </div>
+          <div class="card-body">
+            <p class="intro-text">
+              💡 Nhập mã xác nhận mượn sách để xem thông tin chi tiết yêu cầu của bạn.
+            </p>
 
-                    <form id="checkCodeForm" class="mb-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="confirmationCode" name="confirmationCode" 
-                                   placeholder="Nhập mã xác nhận (ví dụ: BR16789...)" required>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search me-1"></i>Kiểm tra
-                            </button>
-                        </div>
-                    </form>
+            <form id="checkCodeForm">
+              <div class="search-wrapper">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="confirmationCode" 
+                  name="confirmationCode" 
+                  placeholder="Ví dụ: BR16789ABC..." 
+                  required
+                  autocomplete="off"
+                >
+                <button type="submit" class="btn-search">
+                  <i class="fas fa-search"></i>
+                  <span>Kiểm tra</span>
+                </button>
+              </div>
+            </form>
 
-                    <div id="borrowRequestDetails" style="display: none;">
-                        <h5 class="mb-3">Thông tin yêu cầu mượn:</h5>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <img id="bookImage" src="/placeholder.svg" class="img-fluid rounded mb-3" alt="Book Image">
-                            </div>
-                            <div class="col-md-8">
-                                <p><strong>Mã xác nhận:</strong> <span id="detailConfirmationCode"></span></p>
-                                <p><strong>Người yêu cầu:</strong> <span id="detailFullName"></span> (<span id="detailUsername"></span>)</p>
-                                <p><strong>Tên sách:</strong> <span id="detailBookTitle"></span> (<span id="detailBookCode"></span>)</p>
-                                <p><strong>Chi nhánh:</strong> <span id="detailBranch"></span></p>
-                                <p><strong>Ngày yêu cầu:</strong> <span id="detailRequestDate"></span></p>
-                                <p><strong>Ngày nhận dự kiến:</strong> <span id="detailPickupDate"></span></p>
-                                <p><strong>Trạng thái:</strong> <span id="detailStatus"></span></p>
-                                <p id="detailBorrowDateRow" style="display: none;"><strong>Ngày mượn:</strong> <span id="detailBorrowDate"></span></p>
-                                <p id="detailReturnDateRow" style="display: none;"><strong>Ngày trả dự kiến:</strong> <span id="detailReturnDate"></span></p>
-                                <p id="detailActualReturnDateRow" style="display: none;"><strong>Ngày trả thực tế:</strong> <span id="detailActualReturnDate"></span></p>
-                                <p id="detailFineRow" style="display: none;"><strong>Phí phạt:</strong> <span id="detailFine"></span></p>
-                                <p id="detailNotesRow" style="display: none;"><strong>Ghi chú:</strong> <span id="detailNotes"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="noResultAlert" class="alert alert-warning text-center mt-4" style="display: none;">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Không tìm thấy mã xác nhận hoặc mã không hợp lệ.
-                    </div>
+            <div id="borrowRequestDetails" style="display: none;">
+              <h5>Thông tin yêu cầu mượn</h5>
+              <div class="row">
+                <div class="col-md-4 mb-4 mb-md-0">
+                  <div class="book-image-wrapper">
+                    <img id="bookImage" src="/placeholder.svg" alt="Ảnh sách">
+                  </div>
                 </div>
+                <div class="col-md-8">
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-hashtag"></i> Mã xác nhận:</span>
+                    <span class="info-value" id="detailConfirmationCode"></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-user"></i> Người yêu cầu:</span>
+                    <span class="info-value"><span id="detailFullName"></span> (<span id="detailUsername"></span>)</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-book"></i> Tên sách:</span>
+                    <span class="info-value"><span id="detailBookTitle"></span> (<span id="detailBookCode"></span>)</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-map-marker-alt"></i> Chi nhánh:</span>
+                    <span class="info-value" id="detailBranch"></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-calendar-plus"></i> Ngày yêu cầu:</span>
+                    <span class="info-value" id="detailRequestDate"></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-calendar-check"></i> Ngày nhận dự kiến:</span>
+                    <span class="info-value" id="detailPickupDate"></span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label"><i class="fas fa-info-circle"></i> Trạng thái:</span>
+                    <span class="info-value" id="detailStatus"></span>
+                  </div>
+                  <div class="info-row" id="detailBorrowDateRow" style="display: none;">
+                    <span class="info-label"><i class="fas fa-hand-holding"></i> Ngày mượn:</span>
+                    <span class="info-value" id="detailBorrowDate"></span>
+                  </div>
+                  <div class="info-row" id="detailReturnDateRow" style="display: none;">
+                    <span class="info-label"><i class="fas fa-undo"></i> Ngày trả dự kiến:</span>
+                    <span class="info-value" id="detailReturnDate"></span>
+                  </div>
+                  <div class="info-row" id="detailActualReturnDateRow" style="display: none;">
+                    <span class="info-label"><i class="fas fa-check-double"></i> Ngày trả thực tế:</span>
+                    <span class="info-value" id="detailActualReturnDate"></span>
+                  </div>
+                  <div class="info-row" id="detailFineRow" style="display: none;">
+                    <span class="info-label"><i class="fas fa-exclamation-triangle"></i> Phí phạt:</span>
+                    <span class="info-value" id="detailFine"></span>
+                  </div>
+                  <div class="info-row" id="detailNotesRow" style="display: none;">
+                    <span class="info-label"><i class="fas fa-sticky-note"></i> Ghi chú:</span>
+                    <span class="info-value" id="detailNotes"></span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div id="noResultAlert" style="display: none;">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Không tìm thấy mã xác nhận hoặc mã không hợp lệ.</span>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const checkCodeForm = document.getElementById('checkCodeForm');
-    const confirmationCodeInput = document.getElementById('confirmationCode');
-    const borrowRequestDetails = document.getElementById('borrowRequestDetails');
-    const noResultAlert = document.getElementById('noResultAlert');
+  const checkCodeForm = document.getElementById('checkCodeForm');
+  const confirmationCodeInput = document.getElementById('confirmationCode');
+  const borrowRequestDetails = document.getElementById('borrowRequestDetails');
+  const noResultAlert = document.getElementById('noResultAlert');
+  const submitBtn = checkCodeForm.querySelector('.btn-search');
 
-    const bookImage = document.getElementById('bookImage');
-    const detailConfirmationCode = document.getElementById('detailConfirmationCode');
-    const detailFullName = document.getElementById('detailFullName');
-    const detailUsername = document.getElementById('detailUsername');
-    const detailBookTitle = document.getElementById('detailBookTitle');
-    const detailBookCode = document.getElementById('detailBookCode');
-    const detailBranch = document.getElementById('detailBranch');
-    const detailRequestDate = document.getElementById('detailRequestDate');
-    const detailPickupDate = document.getElementById('detailPickupDate');
-    const detailStatus = document.getElementById('detailStatus');
-    const detailBorrowDateRow = document.getElementById('detailBorrowDateRow');
-    const detailBorrowDate = document.getElementById('detailBorrowDate');
-    const detailReturnDateRow = document.getElementById('detailReturnDateRow');
-    const detailReturnDate = document.getElementById('detailReturnDate');
-    const detailActualReturnDateRow = document.getElementById('detailActualReturnDateRow');
-    const detailActualReturnDate = document.getElementById('detailActualReturnDate');
-    const detailFineRow = document.getElementById('detailFineRow');
-    const detailFine = document.getElementById('detailFine');
-    const detailNotesRow = document.getElementById('detailNotesRow');
-    const detailNotes = document.getElementById('detailNotes');
+  checkCodeForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const confirmationCode = confirmationCodeInput.value.trim();
 
-    checkCodeForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const confirmationCode = confirmationCodeInput.value.trim();
-        
-        borrowRequestDetails.style.display = 'none';
-        noResultAlert.style.display = 'none';
+    // Reset
+    borrowRequestDetails.style.display = 'none';
+    noResultAlert.style.display = 'none';
 
-        if (!confirmationCode) {
-            noResultAlert.style.display = 'block';
-            noResultAlert.textContent = 'Vui lòng nhập mã xác nhận.';
-            return;
-        }
+    if (!confirmationCode) {
+      showError('Vui lòng nhập mã xác nhận.');
+      return;
+    }
 
-        try {
-            const response = await fetch('/librarian/check-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ confirmationCode })
-            });
-            
-            const result = await response.json();
-            
-            if (response.ok && result.borrowRequest) {
-                const req = result.borrowRequest;
-                bookImage.src = req.bookId?.image || '/images/default-book.jpg';
-                detailConfirmationCode.textContent = req.confirmationCode;
-                detailFullName.textContent = req.userId?.fullName || 'N/A';
-                detailUsername.textContent = req.userId?.username || 'N/A';
-                detailBookTitle.textContent = req.bookTitle;
-                detailBookCode.textContent = req.bookCode;
-                detailBranch.innerHTML = `<span class="badge bg-info">Chi nhánh ${req.branch}</span>`;
-                detailRequestDate.textContent = new Date(req.requestDate).toLocaleDateString('vi-VN');
-                detailPickupDate.textContent = new Date(req.pickupDate).toLocaleDateString('vi-VN');
-                
-                let statusClass = '';
-                let statusText = '';
-                switch(req.status) {
-                    case 'pending': statusClass = 'warning'; statusText = 'Chờ xử lý'; break;
-                    case 'approved': statusClass = 'info'; statusText = 'Đã duyệt'; break;
-                    case 'borrowed': statusClass = 'success'; statusText = 'Đã mượn'; break;
-                    case 'returned': statusClass = 'secondary'; statusText = 'Đã trả'; break;
-                    case 'cancelled': statusClass = 'danger'; statusText = 'Đã hủy'; break;
-                    default: statusClass = 'light'; statusText = req.status;
-                }
-                detailStatus.innerHTML = `<span class="badge bg-${statusClass}">${statusText}</span>`;
+    // Loading state
+    submitBtn.classList.add('loading');
+    submitBtn.disabled = true;
 
-                // Show/hide conditional fields
-                if (req.borrowDate) {
-                    detailBorrowDate.textContent = new Date(req.borrowDate).toLocaleDateString('vi-VN');
-                    detailBorrowDateRow.style.display = 'block';
-                } else {
-                    detailBorrowDateRow.style.display = 'none';
-                }
-                if (req.returnDate) {
-                    detailReturnDate.textContent = new Date(req.returnDate).toLocaleDateString('vi-VN');
-                    detailReturnDateRow.style.display = 'block';
-                } else {
-                    detailReturnDateRow.style.display = 'none';
-                }
-                if (req.actualReturnDate) {
-                    detailActualReturnDate.textContent = new Date(req.actualReturnDate).toLocaleDateString('vi-VN');
-                    detailActualReturnDateRow.style.display = 'block';
-                } else {
-                    detailActualReturnDateRow.style.display = 'none';
-                }
-                if (req.fine && req.fine > 0) {
-                    detailFine.textContent = req.fine.toLocaleString('vi-VN') + ' VND';
-                    detailFineRow.style.display = 'block';
-                } else {
-                    detailFineRow.style.display = 'none';
-                }
-                if (req.notes) {
-                    detailNotes.textContent = req.notes;
-                    detailNotesRow.style.display = 'block';
-                } else {
-                    detailNotesRow.style.display = 'none';
-                }
+    try {
+      const response = await fetch('/librarian/check-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmationCode })
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok && result.borrowRequest) {
+        displayBorrowRequest(result.borrowRequest);
+      } else {
+        showError(result.error || 'Không tìm thấy mã xác nhận hoặc có lỗi xảy ra.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showError('Có lỗi xảy ra khi kiểm tra mã xác nhận. Vui lòng thử lại.');
+    } finally {
+      submitBtn.classList.remove('loading');
+      submitBtn.disabled = false;
+    }
+  });
 
-                borrowRequestDetails.style.display = 'block';
-            } else {
-                noResultAlert.style.display = 'block';
-                noResultAlert.textContent = result.error || 'Không tìm thấy mã xác nhận hoặc có lỗi xảy ra.';
-            }
-        } catch (error) {
-            console.error('Error checking confirmation code:', error);
-            noResultAlert.style.display = 'block';
-            noResultAlert.textContent = 'Có lỗi xảy ra khi kiểm tra mã xác nhận.';
-        }
-    });
+  function displayBorrowRequest(req) {
+    // Image
+    document.getElementById('bookImage').src = req.bookId?.image || '/images/default-book.jpg';
+    
+    // Basic info
+    document.getElementById('detailConfirmationCode').textContent = req.confirmationCode;
+    document.getElementById('detailFullName').textContent = req.userId?.fullName || 'N/A';
+    document.getElementById('detailUsername').textContent = req.userId?.username || 'N/A';
+    document.getElementById('detailBookTitle').textContent = req.bookTitle;
+    document.getElementById('detailBookCode').textContent = req.bookCode;
+    document.getElementById('detailBranch').innerHTML = `<span class="badge badge-info">Chi nhánh ${req.branch}</span>`;
+    document.getElementById('detailRequestDate').textContent = formatDate(req.requestDate);
+    document.getElementById('detailPickupDate').textContent = formatDate(req.pickupDate);
+    
+    // Status badge
+    const statusConfig = {
+      'pending': { class: 'badge-warning', text: 'Chờ xử lý', icon: 'clock' },
+      'approved': { class: 'badge-info', text: 'Đã duyệt', icon: 'check' },
+      'borrowed': { class: 'badge-success', text: 'Đã mượn', icon: 'book-reader' },
+      'returned': { class: 'badge-secondary', text: 'Đã trả', icon: 'check-double' },
+      'cancelled': { class: 'badge-danger', text: 'Đã hủy', icon: 'times' }
+    };
+    
+    const status = statusConfig[req.status] || { class: 'badge-secondary', text: req.status, icon: 'question' };
+    document.getElementById('detailStatus').innerHTML = 
+      `<span class="badge ${status.class}"><i class="fas fa-${status.icon}"></i> ${status.text}</span>`;
+
+    // Optional fields
+    toggleField('detailBorrowDateRow', 'detailBorrowDate', req.borrowDate);
+    toggleField('detailReturnDateRow', 'detailReturnDate', req.returnDate);
+    toggleField('detailActualReturnDateRow', 'detailActualReturnDate', req.actualReturnDate);
+    
+    if (req.fine && req.fine > 0) {
+      document.getElementById('detailFine').textContent = req.fine.toLocaleString('vi-VN') + ' VND';
+      document.getElementById('detailFineRow').style.display = 'flex';
+    } else {
+      document.getElementById('detailFineRow').style.display = 'none';
+    }
+    
+    if (req.notes) {
+      document.getElementById('detailNotes').textContent = req.notes;
+      document.getElementById('detailNotesRow').style.display = 'flex';
+    } else {
+      document.getElementById('detailNotesRow').style.display = 'none';
+    }
+
+    borrowRequestDetails.style.display = 'block';
+  }
+
+  function toggleField(rowId, valueId, value) {
+    const row = document.getElementById(rowId);
+    if (value) {
+      document.getElementById(valueId).textContent = formatDate(value);
+      row.style.display = 'flex';
+    } else {
+      row.style.display = 'none';
+    }
+  }
+
+  function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('vi-VN');
+  }
+
+  function showError(message) {
+    noResultAlert.textContent = message;
+    noResultAlert.style.display = 'flex';
+  }
 });
 </script>

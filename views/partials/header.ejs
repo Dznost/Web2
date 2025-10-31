@@ -1,8 +1,8 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
 	<div class="container">
-		<a class="navbar-brand" href="/">
+		<a class="navbar-brand d-flex align-items-center" href="/">
 			<i class="fas fa-book-open me-2"></i>
-			Thư viện trực tuyến
+			<span class="brand-text">Thư viện trực tuyến</span>
 		</a>
 
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -10,39 +10,39 @@
 		</button>
 
 		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul class="navbar-nav me-auto">
+			<ul class="navbar-nav mx-auto">
 				<li class="nav-item">
 					<a class="nav-link" href="/books">
 						<i class="fas fa-search me-1"></i>
-						Tra cứu sách
+						<span>Tra cứu sách</span>
 					</a>
 				</li>
 
 				<% if (user) { %>
 				<li class="nav-item">
-					<a class="nav-link" href="/user/cart">
+					<a class="nav-link position-relative" href="/user/cart">
 						<i class="fas fa-shopping-cart me-1"></i>
-						Giỏ hàng
+						<span>Giỏ hàng</span>
 					</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="/user/rules">
 						<i class="fas fa-file-alt me-1"></i>
-						Quy định
+						<span>Quy định</span>
 					</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link" href="/user/request">
 						<i class="fas fa-plus-circle me-1"></i>
-						Yêu cầu sách
+						<span>Yêu cầu sách</span>
 					</a>
 				</li>
 				<li class="nav-item">
 					<a class="nav-link position-relative" href="/user/notifications">
 						<i class="fas fa-bell me-1"></i>
-						Thông báo
+						<span>Thông báo</span>
 						<% if (typeof unreadCount !== 'undefined' && unreadCount > 0) { %>
-						<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+						<span class="notification-badge">
 							<%= unreadCount %>
 						</span>
 						<% } %>
@@ -53,27 +53,31 @@
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
 						<i class="fas fa-user-tie me-1"></i>
-						Thủ thư
+						<span>Thủ thư</span>
 					</a>
-					<ul class="dropdown-menu">
+					<ul class="dropdown-menu dropdown-menu-modern">
 						<li>
 							<a class="dropdown-item" href="/librarian/check-code">
-								<i class="fas fa-qrcode me-2"></i>Kiểm tra mã
+								<i class="fas fa-qrcode me-2"></i>
+								<span>Kiểm tra mã</span>
 							</a>
 						</li>
 						<li>
 							<a class="dropdown-item" href="/librarian/update-status?type=borrow">
-								<i class="fas fa-book me-2"></i>Xác nhận mượn sách
+								<i class="fas fa-book me-2"></i>
+								<span>Xác nhận mượn sách</span>
 							</a>
 						</li>
 						<li>
 							<a class="dropdown-item" href="/librarian/update-status?type=return">
-								<i class="fas fa-undo me-2"></i>Xác nhận trả sách
+								<i class="fas fa-undo me-2"></i>
+								<span>Xác nhận trả sách</span>
 							</a>
 						</li>
 						<li>
 							<a class="dropdown-item" href="/librarian/payment">
-								<i class="fas fa-wallet me-2"></i>Thanh toán
+								<i class="fas fa-wallet me-2"></i>
+								<span>Thanh toán</span>
 							</a>
 						</li>
 					</ul>
@@ -84,27 +88,31 @@
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
 						<i class="fas fa-cog me-1"></i>
-						Quản lý
+						<span>Quản lý</span>
 					</a>
-					<ul class="dropdown-menu">
+					<ul class="dropdown-menu dropdown-menu-modern">
 						<li>
 							<a class="dropdown-item" href="/admin/add-book">
-								<i class="fas fa-plus me-2"></i>Thêm sách
+								<i class="fas fa-plus me-2"></i>
+								<span>Thêm sách</span>
 							</a>
 						</li>
 						<li>
 							<a class="dropdown-item" href="/admin/distribute">
-								<i class="fas fa-share-alt me-2"></i>Phân bố sách
+								<i class="fas fa-share-alt me-2"></i>
+								<span>Phân bố sách</span>
 							</a>
 						</li>
 						<li>
 							<a class="dropdown-item" href="/admin/statistics">
-								<i class="fas fa-chart-bar me-2"></i>Thống kê
+								<i class="fas fa-chart-bar me-2"></i>
+								<span>Thống kê</span>
 							</a>
 						</li>
 						<li>
 							<a class="dropdown-item" href="/admin/ban-user">
-								<i class="fas fa-ban me-2"></i>Cấm người dùng
+								<i class="fas fa-ban me-2"></i>
+								<span>Cấm người dùng</span>
 							</a>
 						</li>
 					</ul>
@@ -116,39 +124,47 @@
 			<ul class="navbar-nav">
 				<% if (user) { %>
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-						<i class="fas fa-user me-1"></i>
-						<%= user.fullName %>
+					<a class="nav-link dropdown-toggle user-dropdown" href="#" role="button" data-bs-toggle="dropdown">
+						<div class="user-avatar">
+							<i class="fas fa-user"></i>
+						</div>
+						<span class="user-name">
+							<%= user.fullName %>
+						</span>
 					</a>
-					<ul class="dropdown-menu">
+					<ul class="dropdown-menu dropdown-menu-end dropdown-menu-modern">
 						<li>
-							<span class="dropdown-item-text">
-								<small class="text-muted">
-									Vai trò: <%= user.role %>
+							<div class="dropdown-header">
+								<strong>
+									<%= user.fullName %>
+								</strong>
+								<small class="d-block text-muted mt-1">
+									<i class="fas fa-shield-alt me-1"></i><%= user.role %>
 								</small>
-							</span>
+							</div>
 						</li>
 						<li>
 							<hr class="dropdown-divider">
 						</li>
 						<li>
 							<a class="dropdown-item" href="/auth/logout">
-								<i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+								<i class="fas fa-sign-out-alt me-2"></i>
+								<span>Đăng xuất</span>
 							</a>
 						</li>
 					</ul>
 				</li>
 				<% } else { %>
 				<li class="nav-item">
-					<a class="nav-link" href="/auth/login">
+					<a class="nav-link btn-nav-auth" href="/auth/login">
 						<i class="fas fa-sign-in-alt me-1"></i>
-						Đăng nhập
+						<span>Đăng nhập</span>
 					</a>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link" href="/auth/register">
+					<a class="nav-link btn-nav-register" href="/auth/register">
 						<i class="fas fa-user-plus me-1"></i>
-						Đăng ký
+						<span>Đăng ký</span>
 					</a>
 				</li>
 				<% } %>
@@ -156,3 +172,6 @@
 		</div>
 	</div>
 </nav>
+
+<!-- Spacer for fixed navbar -->
+<div style="height: 76px;"></div>

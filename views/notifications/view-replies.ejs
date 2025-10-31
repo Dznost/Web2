@@ -1,31 +1,159 @@
 ﻿<%- include('../layouts/main') %>
 
-<main class="container py-4">
-  <h3 class="mb-4">
-    <i class="fas fa-comments me-2"></i>Phản hồi cho thông báo:
-  </h3>
-  <div class="alert alert-info">
-    <%= notification.message %>
-  </div>
+<style>
+.feedback-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 40px 0;
+}
 
-  <% if (replies.length > 0) { %>
-    <ul class="list-group">
-      <% replies.forEach(reply => { %>
-        <li class="list-group-item">
-          <strong><%= reply.senderId.fullName %> (<%= reply.senderId.role %>)</strong><br />
-          <%= reply.message %><br />
-          <small class="text-muted">
-            <i class="fas fa-clock me-1"></i>
-            <%= new Date(reply.createdAt).toLocaleString('vi-VN') %>
-          </small>
-        </li>
-      <% }) %>
-    </ul>
-  <% } else { %>
-    <div class="alert alert-secondary mt-3">Chưa có phản hồi nào cho thông báo này.</div>
-  <% } %>
+.feedback-card {
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  background: white;
+  overflow: hidden;
+}
 
-  <a href="/notifications" class="btn btn-secondary mt-4">
-    <i class="fas fa-arrow-left me-1"></i> Quay lại danh sách thông báo
-  </a>
-</main>
+.card-header-custom {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border: none;
+}
+
+.card-header-custom h5 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.5rem;
+}
+
+.notification-message {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  color: #1e293b;
+  font-weight: 500;
+  margin-bottom: 25px;
+  border-left: 4px solid #667eea;
+}
+
+.reply-section {
+  padding: 0 30px 30px;
+}
+
+.reply-item {
+  background: white;
+  padding: 18px 20px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.reply-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+.reply-author {
+  font-weight: 600;
+  color: #667eea;
+  font-size: 1rem;
+}
+
+.reply-message {
+  color: #475569;
+  margin: 6px 0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.reply-time {
+  color: #94a3b8;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+}
+
+.reply-time i {
+  margin-right: 6px;
+}
+
+.no-replies {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  color: #475569;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 25px;
+}
+
+.btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(71,85,105,0.3);
+  color: white;
+}
+</style>
+
+<div class="feedback-container">
+  <main class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-9">
+        <div class="feedback-card">
+          <div class="card-header-custom">
+            <h5><i class="fas fa-comments me-3"></i>Phản hồi cho thông báo</h5>
+          </div>
+          <div class="reply-section">
+            <div class="notification-message">
+              <%= notification.message %>
+            </div>
+
+            <% if (replies.length > 0) { %>
+              <% replies.forEach(reply => { %>
+                <div class="reply-item">
+                  <div class="reply-author">
+                    <i class="fas fa-user-circle me-2"></i>
+                    <%= reply.senderId.fullName %> (<%= reply.senderId.role %>)
+                  </div>
+                  <div class="reply-message">
+                    <%= reply.message %>
+                  </div>
+                  <div class="reply-time">
+                    <i class="fas fa-clock"></i>
+                    <%= new Date(reply.createdAt).toLocaleString('vi-VN') %>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="no-replies">
+                <i class="fas fa-inbox fa-2x mb-3 d-block" style="color:#3b82f6;"></i>
+                Chưa có phản hồi nào cho thông báo này.
+              </div>
+            <% } %>
+
+            <a href="/notifications" class="btn-back">
+              <i class="fas fa-arrow-left"></i> Quay lại danh sách thông báo
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

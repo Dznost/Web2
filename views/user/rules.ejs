@@ -1,151 +1,339 @@
 <%- include('../layouts/main') %>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-file-alt me-2"></i>
-                        Quy định mượn sách
-                    </h4>
+<div class="container mt-4 mb-5">
+    <!-- Header Section -->
+    <div class="rules-header mb-5">
+        <div class="text-center">
+            <div class="rules-icon-wrapper mb-3">
+                <i class="fas fa-book-reader"></i>
+            </div>
+            <h1 class="rules-title mb-2">Quy định mượn sách</h1>
+            <p class="rules-subtitle">Vui lòng đọc kỹ các quy định trước khi mượn sách</p>
+        </div>
+    </div>
+
+    <!-- User Type Cards -->
+    <div class="row mb-5">
+        <div class="col-12 mb-4">
+            <h3 class="section-title">
+                <i class="fas fa-users me-2"></i>
+                Quy định theo loại độc giả
+            </h3>
+        </div>
+        
+        <!-- Student Card -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="user-type-card card-student">
+                <div class="card-icon">
+                    <i class="fas fa-user-graduate"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-header-custom">
+                    <h4 class="card-title">Sinh viên</h4>
+                    <p class="card-subtitle">Dành cho sinh viên đang học tập</p>
+                </div>
+                <div class="card-body-custom">
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Thời gian mượn</div>
+                            <div class="rule-value">Tối đa 7 ngày</div>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-books"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Số lượng sách</div>
+                            <div class="rule-value">Không giới hạn</div>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Phí trễ hạn</div>
+                            <div class="rule-value text-danger">5,000 VNĐ/ngày</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teacher Card -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="user-type-card card-teacher">
+                <div class="card-icon">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                </div>
+                <div class="card-header-custom">
+                    <h4 class="card-title">Giảng viên</h4>
+                    <p class="card-subtitle">Dành cho giảng viên giảng dạy</p>
+                </div>
+                <div class="card-body-custom">
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-infinity"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Thời gian mượn</div>
+                            <div class="rule-value text-success">Không giới hạn</div>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-books"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Số lượng sách</div>
+                            <div class="rule-value">Tối đa 5 quyển/năm</div>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-gift"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Phí trễ hạn</div>
+                            <div class="rule-value text-success">Miễn phí</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reader Card -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="user-type-card card-reader">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="card-header-custom">
+                    <h4 class="card-title">Độc giả khác</h4>
+                    <p class="card-subtitle">Dành cho độc giả bên ngoài</p>
+                </div>
+                <div class="card-body-custom">
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Thời gian mượn</div>
+                            <div class="rule-value">Tối đa 7 ngày</div>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-books"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Số lượng sách</div>
+                            <div class="rule-value">Tối đa 3 quyển</div>
+                        </div>
+                    </div>
+                    <div class="rule-item">
+                        <div class="rule-icon">
+                            <i class="fas fa-money-bill-wave"></i>
+                        </div>
+                        <div class="rule-content">
+                            <div class="rule-label">Phí trễ hạn</div>
+                            <div class="rule-value text-danger">10,000 VNĐ/ngày</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- General Rules Section -->
+    <div class="row mb-4">
+        <div class="col-12 mb-4">
+            <h3 class="section-title">
+                <i class="fas fa-info-circle me-2"></i>
+                Quy định chung
+            </h3>
+        </div>
+
+        <!-- Borrowing Rules -->
+        <div class="col-lg-6 mb-4">
+            <div class="general-rule-card card-borrow">
+                <div class="rule-card-header">
+                    <i class="fas fa-hand-holding-book"></i>
+                    <h5>Khi mượn sách</h5>
+                </div>
+                <div class="rule-card-body">
+                    <ul class="rule-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Mang theo <strong>mã xác nhận</strong> khi đến nhận sách</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Kiểm tra <strong>tình trạng sách</strong> trước khi nhận</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Ghi nhận <strong>ngày mượn</strong> với thủ thư</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Bảo quản sách <strong>cẩn thận</strong> trong quá trình sử dụng</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Không được <strong>cho mượn lại</strong> hoặc chuyển nhượng</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Return Rules -->
+        <div class="col-lg-6 mb-4">
+            <div class="general-rule-card card-return">
+                <div class="rule-card-header">
+                    <i class="fas fa-undo-alt"></i>
+                    <h5>Khi trả sách</h5>
+                </div>
+                <div class="rule-card-body">
+                    <ul class="rule-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Trả sách <strong>đúng hạn</strong> để tránh phí phạt</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Sách phải trong <strong>tình trạng tốt</strong>, không rách hoặc bẩn</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Thanh toán <strong>phí phạt</strong> nếu trả trễ hoặc hỏng sách</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Nhận <strong>xác nhận trả sách</strong> từ thủ thư</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Có thể <strong>gia hạn</strong> nếu sách chưa được đặt trước</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="warning-card">
+                <div class="warning-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h5>Các trường hợp bị cấm mượn sách</h5>
+                </div>
+                <div class="warning-body">
                     <div class="row">
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-primary">
-                                <div class="card-header bg-primary text-white">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-graduation-cap me-2"></i>
-                                        Sinh viên
-                                    </h5>
+                        <div class="col-md-6 mb-3">
+                            <div class="warning-item">
+                                <div class="warning-icon">
+                                    <i class="fas fa-calendar-times"></i>
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li class="mb-2">
-                                            <i class="fas fa-clock text-primary me-2"></i>
-                                            <strong>Thời gian mượn:</strong> Tối đa 7 ngày
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-books text-primary me-2"></i>
-                                            <strong>Số lượng:</strong> Không giới hạn
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-money-bill text-primary me-2"></i>
-                                            <strong>Phí trễ hạn:</strong> 5,000 VND/ngày
-                                        </li>
-                                    </ul>
+                                <div class="warning-content">
+                                    <h6>Trả sách trễ hạn</h6>
+                                    <p>Vi phạm quy định trả sách quá hạn từ 3 lần trở lên trong năm</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-success">
-                                <div class="card-header bg-success text-white">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-chalkboard-teacher me-2"></i>
-                                        Giảng viên
-                                    </h5>
+                        <div class="col-md-6 mb-3">
+                            <div class="warning-item">
+                                <div class="warning-icon">
+                                    <i class="fas fa-book-dead"></i>
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li class="mb-2">
-                                            <i class="fas fa-infinity text-success me-2"></i>
-                                            <strong>Thời gian mượn:</strong> Không giới hạn
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-books text-success me-2"></i>
-                                            <strong>Số lượng:</strong> Tối đa 5 quyển/năm
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-money-bill text-success me-2"></i>
-                                            <strong>Phí trễ hạn:</strong> Miễn phí
-                                        </li>
-                                    </ul>
+                                <div class="warning-content">
+                                    <h6>Làm hỏng/Mất sách</h6>
+                                    <p>Làm rách, viết vẽ, làm mất hoặc hư hỏng nghiêm trọng sách</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-md-4 mb-4">
-                            <div class="card border-warning">
-                                <div class="card-header bg-warning text-dark">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-user me-2"></i>
-                                        Độc giả khác
-                                    </h5>
+                        <div class="col-md-6 mb-3">
+                            <div class="warning-item">
+                                <div class="warning-icon">
+                                    <i class="fas fa-hand-holding-usd"></i>
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li class="mb-2">
-                                            <i class="fas fa-clock text-warning me-2"></i>
-                                            <strong>Thời gian mượn:</strong> Tối đa 7 ngày
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-books text-warning me-2"></i>
-                                            <strong>Số lượng:</strong> Tối đa 3 quyển
-                                        </li>
-                                        <li class="mb-2">
-                                            <i class="fas fa-money-bill text-warning me-2"></i>
-                                            <strong>Phí trễ hạn:</strong> 10,000 VND/ngày
-                                        </li>
-                                    </ul>
+                                <div class="warning-content">
+                                    <h6>Nợ phí phạt</h6>
+                                    <p>Không thanh toán các khoản phí phạt trong vòng 30 ngày</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="warning-item">
+                                <div class="warning-icon">
+                                    <i class="fas fa-ban"></i>
+                                </div>
+                                <div class="warning-content">
+                                    <h6>Vi phạm quy định</h6>
+                                    <p>Gây mất trật tự, xâm phạm tài sản của thư viện</p>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <hr>
-                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="row">
+        <div class="col-12">
+            <div class="contact-card">
+                <div class="contact-header">
+                    <i class="fas fa-headset"></i>
+                    <h5>Cần hỗ trợ?</h5>
+                    <p>Liên hệ với chúng tôi để được giải đáp thắc mắc</p>
+                </div>
+                <div class="contact-body">
                     <div class="row">
-                        <div class="col-12">
-                            <h5 class="text-primary mb-3">
-                                <i class="fas fa-exclamation-circle me-2"></i>
-                                Quy định chung
-                            </h5>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="alert alert-info">
-                                        <h6><i class="fas fa-hand-holding me-2"></i>Khi mượn sách:</h6>
-                                        <ul class="mb-0">
-                                            <li>Mang theo mã xác nhận khi đến nhận sách</li>
-                                            <li>Kiểm tra tình trạng sách trước khi nhận</li>
-                                            <li>Ghi nhận ngày mượn với thủ thư</li>
-                                            <li>Bảo quản sách cẩn thận</li>
-                                        </ul>
-                                    </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-envelope"></i>
                                 </div>
-                                
-                                <div class="col-md-6">
-                                    <div class="alert alert-warning">
-                                        <h6><i class="fas fa-undo me-2"></i>Khi trả sách:</h6>
-                                        <ul class="mb-0">
-                                            <li>Trả sách đúng hạn để tránh phí phạt</li>
-                                            <li>Sách phải trong tình trạng tốt</li>
-                                            <li>Thanh toán phí phạt (nếu có)</li>
-                                            <li>Nhận xác nhận trả sách từ thủ thư</li>
-                                        </ul>
-                                    </div>
+                                <div class="contact-info">
+                                    <div class="contact-label">Email</div>
+                                    <a href="mailto:library@example.com" class="contact-value">
+                                        library@example.com
+                                    </a>
                                 </div>
                             </div>
-                            
-                            <div class="alert alert-danger">
-                                <h6><i class="fas fa-ban me-2"></i>Các trường hợp bị cấm mượn sách:</h6>
-                                <ul class="mb-0">
-                                    <li>Trả sách quá hạn nhiều lần</li>
-                                    <li>Làm hỏng hoặc mất sách</li>
-                                    <li>Không thanh toán phí phạt</li>
-                                    <li>Vi phạm quy định của thư viện</li>
-                                </ul>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-phone-alt"></i>
+                                </div>
+                                <div class="contact-info">
+                                    <div class="contact-label">Điện thoại</div>
+                                    <a href="tel:02412345678" class="contact-value">
+                                        (024) 1234-5678
+                                    </a>
+                                </div>
                             </div>
-                            
-                            <div class="alert alert-success">
-                                <h6><i class="fas fa-phone me-2"></i>Liên hệ hỗ trợ:</h6>
-                                <p class="mb-0">
-                                    <strong>Email:</strong> library@example.com<br>
-                                    <strong>Điện thoại:</strong> (024) 1234-5678<br>
-                                    <strong>Giờ làm việc:</strong> 8:00 - 17:00 (Thứ 2 - Thứ 6)
-                                </p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="contact-item">
+                                <div class="contact-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="contact-info">
+                                    <div class="contact-label">Giờ làm việc</div>
+                                    <div class="contact-value">
+                                        8:00 - 17:00 (T2 - T6)
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -154,3 +342,539 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Header Section */
+.rules-header {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border-radius: 20px;
+    margin-bottom: 3rem;
+}
+
+.rules-icon-wrapper {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+.rules-icon-wrapper i {
+    font-size: 3rem;
+    color: white;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.rules-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.rules-subtitle {
+    font-size: 1.1rem;
+    color: #64748b;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #e2e8f0;
+}
+
+/* User Type Cards */
+.user-type-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.4s ease;
+    height: 100%;
+    border: 2px solid transparent;
+}
+
+.user-type-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+.card-student {
+    border-color: #3b82f6;
+}
+
+.card-student:hover {
+    border-color: #2563eb;
+}
+
+.card-teacher {
+    border-color: #10b981;
+}
+
+.card-teacher:hover {
+    border-color: #059669;
+}
+
+.card-reader {
+    border-color: #f59e0b;
+}
+
+.card-reader:hover {
+    border-color: #d97706;
+}
+
+.card-icon {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.card-icon::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    animation: shimmer 3s infinite;
+}
+
+.card-student .card-icon {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.card-teacher .card-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.card-reader .card-icon {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.card-header-custom {
+    padding: 1.5rem;
+    text-align: center;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+.card-body-custom {
+    padding: 1.5rem;
+}
+
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: #f8fafc;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.rule-item:hover {
+    background: #eff6ff;
+    transform: translateX(5px);
+}
+
+.rule-item:last-child {
+    margin-bottom: 0;
+}
+
+.rule-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.card-student .rule-icon {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+}
+
+.card-teacher .rule-icon {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.card-reader .rule-icon {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #92400e;
+}
+
+.rule-content {
+    flex: 1;
+}
+
+.rule-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+}
+
+.rule-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* General Rule Cards */
+.general-rule-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.general-rule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-borrow {
+    border-color: #06b6d4;
+}
+
+.card-return {
+    border-color: #8b5cf6;
+}
+
+.rule-card-header {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.card-borrow .rule-card-header {
+    background: linear-gradient(135deg, #cffafe, #a5f3fc);
+}
+
+.card-return .rule-card-header {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+}
+
+.rule-card-header i {
+    font-size: 2rem;
+}
+
+.card-borrow .rule-card-header i {
+    color: #0e7490;
+}
+
+.card-return .rule-card-header i {
+    color: #7c3aed;
+}
+
+.rule-card-header h5 {
+    margin: 0;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.rule-card-body {
+    padding: 1.5rem;
+}
+
+.rule-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rule-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.rule-list li:last-child {
+    border-bottom: none;
+}
+
+.rule-list i {
+    color: #10b981;
+    font-size: 1.1rem;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.rule-list span {
+    color: #475569;
+    line-height: 1.6;
+}
+
+.rule-list strong {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+/* Warning Card */
+.warning-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #fca5a5;
+}
+
+.warning-header {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.warning-header i {
+    font-size: 3rem;
+    color: #dc2626;
+    margin-bottom: 0.5rem;
+}
+
+.warning-header h5 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #991b1b;
+    margin: 0;
+}
+
+.warning-body {
+    padding: 2rem;
+}
+
+.warning-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border-radius: 12px;
+    border-left: 4px solid #ef4444;
+}
+
+.warning-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.warning-icon i {
+    font-size: 1.5rem;
+    color: #dc2626;
+}
+
+.warning-content h6 {
+    font-weight: 700;
+    color: #991b1b;
+    margin-bottom: 0.5rem;
+}
+
+.warning-content p {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Contact Card */
+.contact-card {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #86efac;
+}
+
+.contact-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    padding: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.contact-header i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.contact-header h5 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.contact-header p {
+    margin: 0;
+    opacity: 0.9;
+}
+
+.contact-body {
+    padding: 2rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.contact-icon {
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.contact-icon i {
+    font-size: 1.5rem;
+    color: #059669;
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.contact-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-decoration: none;
+    display: block;
+}
+
+.contact-value:hover {
+    color: #10b981;
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+    .rules-title {
+        font-size: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .card-icon {
+        height: 100px;
+        font-size: 3rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .rules-header {
+        padding: 2rem 1rem;
+    }
+    
+    .rules-icon-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .rules-icon-wrapper i {
+        font-size: 2.5rem;
+    }
+    
+    .rules-title {
+        font-size: 1.75rem;
+    }
+    
+    .warning-body,
+    .contact-body {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+// Add animation on scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.user-type-card, .general-rule-card, .warning-card, .contact-card');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+                setTimeout(() => {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }, index * 100);
+            }
+        });
+    }, {
+        threshold: 0.1
+    });
+    
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'all 0.6s ease';
+        observer.observe

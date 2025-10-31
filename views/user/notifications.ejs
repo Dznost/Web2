@@ -1,68 +1,372 @@
 ﻿<%- include('../layouts/main') %>
 
-<main class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <div class="card shadow rounded-3">
-        <div class="card-header bg-primary text-white d-flex align-items-center">
-          <i class="fas fa-bell me-2"></i>
-          <h5 class="mb-0">Thông báo của bạn</h5>
-        </div>
-        <div class="card-body">
-          <% if (notifications && notifications.length > 0) { %>
-            <ul class="list-group list-group-flush">
-              <% notifications.forEach(notification => { %>
-                <li class="list-group-item">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div class="ms-2 me-auto">
-                      <div class="fw-bold text-dark">
-                        <%- notification.message %>
-                      </div>
-                      <small class="text-muted">
-                        <i class="fas fa-clock me-1"></i>
-                        <%= new Date(notification.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) %> -
-                        <%= new Date(notification.createdAt).toLocaleDateString('vi-VN') %>
-                      </small>
-                    </div>
-                    <% if (!notification.isRead) { %>
-                      <span class="badge bg-danger rounded-pill">Mới</span>
-                    <% } %>
-                  </div>
+<style>
+.notifications-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 40px 0;
+}
 
-                  <% if (notification.replies && notification.replies.length > 0) { %>
-                    <% notification.replies.forEach(reply => { %>
-                      <div class="alert alert-secondary mt-2 mb-0 small">
-                        <i class="fas fa-reply me-1"></i>
-                        <strong><%= reply.senderId?.fullName || 'Người dùng' %>:</strong> <%= reply.message %><br>
-                        <small class="text-muted"><%= new Date(reply.createdAt).toLocaleString('vi-VN') %></small>
-                      </div>
-                    <% }) %>
-                  <% } else { %>
-                    <!-- Form phản hồi -->
-                    <form class="mt-2 reply-form" data-id="<%= notification._id %>">
-                      <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" name="message" placeholder="Nhập phản hồi..." required>
-                        <button class="btn btn-outline-primary btn-sm" type="submit">Gửi</button>
-                      </div>
-                      <div class="reply-result mt-1 text-success small"></div>
-                    </form>
-                  <% } %>
-                  <a href="/notifications/<%= notification._id %>/replies" class="btn btn-sm btn-info mt-2">
-                    <i class="fas fa-comments me-1"></i>Xem phản hồi
-                  </a>
-                </li>
-              <% }) %>
-            </ul>
-          <% } else { %>
-            <div class="alert alert-info mb-0 text-center">
-              <i class="fas fa-info-circle me-2"></i> Hiện bạn chưa có thông báo nào.
+.notifications-card {
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    border: none;
+    overflow: hidden;
+    background: white;
+}
+
+.card-header-custom {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border: none;
+}
+
+.card-header-custom h5 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.notifications-body {
+    padding: 0;
+}
+
+.notification-item {
+    padding: 25px 30px;
+    border-bottom: 2px solid #f1f5f9;
+    transition: all 0.3s ease;
+    position: relative;
+    background: white;
+}
+
+.notification-item:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    transform: translateX(5px);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-unread {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.notification-unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-message {
+    color: #1e293b;
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+    line-height: 1.6;
+}
+
+.notification-time {
+    display: inline-flex;
+    align-items: center;
+    color: #64748b;
+    font-size: 0.9rem;
+    background: #f1f5f9;
+    padding: 5px 12px;
+    border-radius: 20px;
+}
+
+.notification-time i {
+    margin-right: 6px;
+    color: #667eea;
+}
+
+.badge-new {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+}
+
+.reply-box {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+    border-left: 3px solid #667eea;
+}
+
+.reply-item {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.reply-item:last-child {
+    margin-bottom: 0;
+}
+
+.reply-author {
+    font-weight: 600;
+    color: #667eea;
+    margin-right: 8px;
+}
+
+.reply-message {
+    color: #475569;
+    margin: 5px 0;
+}
+
+.reply-time {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.reply-form {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    margin-top: 15px;
+    border: 2px solid #e2e8f0;
+}
+
+.reply-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 15px;
+    transition: all 0.3s ease;
+}
+
+.reply-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-send-reply {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-send-reply:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    color: white;
+}
+
+.btn-view-replies {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-view-replies:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(59, 130, 246, 0.3);
+    color: white;
+}
+
+.reply-result {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.reply-result.success {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+}
+
+.reply-result.error {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+}
+
+.no-notifications {
+    padding: 60px 30px;
+    text-align: center;
+}
+
+.no-notifications-icon {
+    font-size: 5rem;
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+.no-notifications-text {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.empty-state {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #3b82f6;
+    margin-bottom: 20px;
+}
+
+.empty-state p {
+    color: #1e40af;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .notifications-container {
+        padding: 20px 0;
+    }
+    
+    .notification-item {
+        padding: 20px;
+    }
+    
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+}
+</style>
+
+<div class="notifications-container">
+    <main class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="notifications-card">
+                    <div class="card-header-custom">
+                        <h5>
+                            <i class="fas fa-bell me-3"></i>
+                            Thông báo của bạn
+                        </h5>
+                    </div>
+                    <div class="notifications-body">
+                        <% if (notifications && notifications.length > 0) { %>
+                            <% notifications.forEach(notification => { %>
+                                <div class="notification-item <%= !notification.isRead ? 'notification-unread' : '' %>">
+                                    <div class="d-flex justify-content-between align-items-start mb-3 notification-header">
+                                        <div class="notification-content">
+                                            <div class="notification-message">
+                                                <%- notification.message %>
+                                            </div>
+                                            <span class="notification-time">
+                                                <i class="fas fa-clock"></i>
+                                                <%= new Date(notification.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) %> -
+                                                <%= new Date(notification.createdAt).toLocaleDateString('vi-VN') %>
+                                            </span>
+                                        </div>
+                                        <% if (!notification.isRead) { %>
+                                            <span class="badge-new">
+                                                <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                                                Mới
+                                            </span>
+                                        <% } %>
+                                    </div>
+
+                                    <% if (notification.replies && notification.replies.length > 0) { %>
+                                        <div class="reply-box">
+                                            <div style="font-weight: 600; color: #475569; margin-bottom: 12px;">
+                                                <i class="fas fa-comments me-2"></i>
+                                                Phản hồi (<%= notification.replies.length %>):
+                                            </div>
+                                            <% notification.replies.forEach(reply => { %>
+                                                <div class="reply-item">
+                                                    <div>
+                                                        <i class="fas fa-reply me-2" style="color: #667eea;"></i>
+                                                        <span class="reply-author">
+                                                            <%= reply.senderId?.fullName || 'Người dùng' %>:
+                                                        </span>
+                                                    </div>
+                                                    <div class="reply-message">
+                                                        <%= reply.message %>
+                                                    </div>
+                                                    <div class="reply-time">
+                                                        <i class="far fa-clock me-1"></i>
+                                                        <%= new Date(reply.createdAt).toLocaleString('vi-VN') %>
+                                                    </div>
+                                                </div>
+                                            <% }) %>
+                                        </div>
+                                    <% } else { %>
+                                        <!-- Form phản hồi -->
+                                        <form class="reply-form" data-id="<%= notification._id %>">
+                                            <div style="font-weight: 600; color: #475569; margin-bottom: 10px;">
+                                                <i class="fas fa-reply me-2"></i>
+                                                Gửi phản hồi:
+                                            </div>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control reply-input" name="message" placeholder="Nhập phản hồi của bạn..." required>
+                                                <button class="btn btn-send-reply" type="submit">
+                                                    <i class="fas fa-paper-plane me-2"></i>
+                                                    Gửi
+                                                </button>
+                                            </div>
+                                            <div class="reply-result"></div>
+                                        </form>
+                                    <% } %>
+                                    
+                                    <div class="mt-3">
+                                        <a href="/notifications/<%= notification._id %>/replies" class="btn btn-view-replies">
+                                            <i class="fas fa-comments me-2"></i>Xem tất cả phản hồi
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-notifications">
+                                <div class="empty-state">
+                                    <i class="fas fa-bell-slash"></i>
+                                    <p>Hiện bạn chưa có thông báo nào.</p>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
             </div>
-          <% } %>
         </div>
-      </div>
-    </div>
-  </div>
-</main>
+    </main>
+</div>
 
 <script>
 document.querySelectorAll(".reply-form").forEach(form => {
@@ -70,10 +374,15 @@ document.querySelectorAll(".reply-form").forEach(form => {
     e.preventDefault();
     const replyInput = form.querySelector("input[name='message']");
     const resultDiv = form.querySelector(".reply-result");
+    const submitBtn = form.querySelector("button[type='submit']");
     const notificationId = form.dataset.id;
     const message = replyInput.value.trim();
 
     if (!message) return;
+
+    // Disable form during submission
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Đang gửi...';
 
     try {
       const res = await fetch(`/notifications/${notificationId}/reply`, {
@@ -84,18 +393,29 @@ document.querySelectorAll(".reply-form").forEach(form => {
         body: JSON.stringify({ message }),
       });
       const data = await res.json();
+      
       if (data.success) {
-        resultDiv.textContent = "✔️ Đã gửi phản hồi!";
+        resultDiv.textContent = "✔️ Đã gửi phản hồi thành công!";
+        resultDiv.className = "reply-result success";
         replyInput.disabled = true;
-        form.querySelector("button").disabled = true;
-        form.classList.add("text-muted");
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-check me-2"></i>Đã gửi';
+        
+        // Reload page after 2 seconds to show the reply
+        setTimeout(() => {
+          location.reload();
+        }, 2000);
       } else {
-        resultDiv.textContent = data.error || "❌ Gửi thất bại.";
-        resultDiv.classList.replace("text-success", "text-danger");
+        resultDiv.textContent = data.error || "❌ Gửi thất bại. Vui lòng thử lại.";
+        resultDiv.className = "reply-result error";
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Gửi';
       }
     } catch (err) {
-      resultDiv.textContent = "❌ Lỗi kết nối.";
-      resultDiv.classList.replace("text-success", "text-danger");
+      resultDiv.textContent = "❌ Lỗi kết nối. Vui lòng kiểm tra internet và thử lại.";
+      resultDiv.className = "reply-result error";
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane me-2"></i>Gửi';
     }
   });
 });

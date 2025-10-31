@@ -1,88 +1,396 @@
 ﻿<%- include('../layouts/main') %>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <div class="card">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-ban me-2"></i>
-                        Cấm người dùng
-                    </h4>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted mb-4">
-                        Quản lý trạng thái cấm/bỏ cấm người dùng.
-                    </p>
+<style>
+.ban-container {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
 
-                    <div class="mb-3">
-                        <label for="userSelect" class="form-label">Chọn người dùng</label>
-                        <select class="form-select" id="userSelect">
-                            <option value="">-- Chọn người dùng --</option>
-                            <% users.forEach(user => { %>
-                                <option value="<%= user._id %>"
-                                        data-banned-until="<%= user.bannedUntil ? user.bannedUntil.toISOString().split('T')[0] : '' %>"
-                                        data-banned-reason="<%= user.bannedReason || '' %>">
-                                    <%= user.fullName %> (<%= user.username %>) - <%= user.role %>
-                                    <% if (user.isBanned()) { %>
-                                        <span class="badge bg-danger ms-2">Đang bị cấm</span>
-                                    <% } %>
-                                </option>
-                            <% }) %>
-                        </select>
+.ban-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.ban-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.ban-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    animation: pulse 15s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.ban-header h4 {
+    position: relative;
+    z-index: 1;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ban-body {
+    padding: 2.5rem;
+}
+
+.custom-select {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.custom-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.info-card {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 15px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.info-value {
+    color: #2d3748;
+    flex: 1;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 2rem 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #667eea;
+    display: inline-block;
+}
+
+.history-table {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.history-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.history-table thead th {
+    padding: 1rem;
+    font-weight: 600;
+    border: none;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.history-table tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.history-table tbody tr:hover {
+    background: #f8f9fa;
+    transition: background 0.2s ease;
+}
+
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-active {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.badge-banned {
+    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+    color: white;
+}
+
+.action-form {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+}
+
+.form-control-modern {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control-modern:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.btn-modern {
+    padding: 0.75rem 2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-ban {
+    background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+    color: white;
+}
+
+.btn-ban:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(238, 9, 121, 0.4);
+}
+
+.btn-unban {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.btn-unban:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+}
+
+.alert-modern {
+    border-radius: 15px;
+    border: none;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    color: #2d3748;
+    box-shadow: 0 4px 15px rgba(253, 203, 110, 0.3);
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+</style>
+
+<div class="ban-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-11 col-lg-10">
+                <div class="ban-card">
+                    <div class="ban-header">
+                        <h4 class="mb-0 text-white">
+                            <i class="fas fa-user-shield me-3"></i>
+                            Quản lý cấm người dùng
+                        </h4>
+                        <p class="text-white-50 mb-0 mt-2" style="position: relative; z-index: 1;">
+                            Quản lý trạng thái và lịch sử hoạt động của người dùng
+                        </p>
                     </div>
-
-                    <div id="userDetails" style="display: none;">
-                        <h5 class="mt-4 mb-3">Thông tin người dùng:</h5>
-                        <p><strong>Họ và tên:</strong> <span id="detailFullName"></span></p>
-                        <p><strong>Tên đăng nhập:</strong> <span id="detailUsername"></span></p>
-                        <p><strong>Email:</strong> <span id="detailEmail"></span></p>
-                        <p><strong>Vai trò:</strong> <span id="detailRole"></span></p>
-                        <p><strong>Trạng thái cấm:</strong> <span id="detailBannedStatus"></span></p>
-                        <p id="detailBannedReasonRow" style="display: none;"><strong>Lý do cấm:</strong> <span id="detailBannedReason"></span></p>
-                        <p id="detailBannedUntilRow" style="display: none;"><strong>Cấm đến:</strong> <span id="detailBannedUntil"></span></p>
-
-                        <h5 class="mt-4 mb-3">Lịch sử mượn sách:</h5>
-                        <div id="borrowHistory" class="table-responsive">
-                            <table class="table table-sm table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Sách</th>
-                                        <th>Ngày mượn</th>
-                                        <th>Ngày trả dự kiến</th>
-                                        <th>Ngày trả thực tế</th>
-                                        <th>Trạng thái</th>
-                                        <th>Phí phạt</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="historyTableBody">
-                                    <tr><td colspan="6" class="text-center text-muted">Đang tải lịch sử...</td></tr>
-                                </tbody>
-                            </table>
+                    
+                    <div class="ban-body">
+                        <div class="mb-4">
+                            <label for="userSelect" class="form-label fw-bold text-muted mb-3">
+                                <i class="fas fa-search me-2"></i>Tìm kiếm người dùng
+                            </label>
+                            <select class="form-select custom-select" id="userSelect">
+                                <option value="">-- Chọn người dùng để xem chi tiết --</option>
+                                <% users.forEach(user => { %>
+                                    <option value="<%= user._id %>"
+                                            data-banned-until="<%= user.bannedUntil ? user.bannedUntil.toISOString().split('T')[0] : '' %>"
+                                            data-banned-reason="<%= user.bannedReason || '' %>">
+                                        <%= user.fullName %> (<%= user.username %>) - <%= user.role %>
+                                        <% if (user.isBanned()) { %>⛔ Đang bị cấm<% } %>
+                                    </option>
+                                <% }) %>
+                            </select>
                         </div>
 
-                        <h5 class="mt-4 mb-3">Thao tác:</h5>
-                        <form id="banForm" class="mb-3" style="display: none;">
-                            <input type="hidden" id="banUserId">
-                            <div class="mb-3">
-                                <label for="banDays" class="form-label">Số ngày cấm</label>
-                                <input type="number" class="form-control" id="banDays" name="days" min="1" required>
+                        <div id="userDetails" style="display: none;" class="fade-in">
+                            <div class="section-title">
+                                <i class="fas fa-user-circle me-2"></i>Thông tin người dùng
                             </div>
-                            <div class="mb-3">
-                                <label for="banReason" class="form-label">Lý do cấm</label>
-                                <textarea class="form-control" id="banReason" name="reason" rows="3" required></textarea>
+                            
+                            <div class="info-card">
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-user"></i>
+                                        <span>Họ và tên:</span>
+                                    </div>
+                                    <div class="info-value" id="detailFullName"></div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-id-badge"></i>
+                                        <span>Tên đăng nhập:</span>
+                                    </div>
+                                    <div class="info-value" id="detailUsername"></div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>Email:</span>
+                                    </div>
+                                    <div class="info-value" id="detailEmail"></div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-user-tag"></i>
+                                        <span>Vai trò:</span>
+                                    </div>
+                                    <div class="info-value" id="detailRole"></div>
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-label">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Trạng thái:</span>
+                                    </div>
+                                    <div class="info-value" id="detailBannedStatus"></div>
+                                </div>
+                                <div class="info-row" id="detailBannedReasonRow" style="display: none;">
+                                    <div class="info-label">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <span>Lý do cấm:</span>
+                                    </div>
+                                    <div class="info-value" id="detailBannedReason"></div>
+                                </div>
+                                <div class="info-row" id="detailBannedUntilRow" style="display: none;">
+                                    <div class="info-label">
+                                        <i class="fas fa-calendar-times"></i>
+                                        <span>Cấm đến:</span>
+                                    </div>
+                                    <div class="info-value" id="detailBannedUntil"></div>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="fas fa-ban me-1"></i>Cấm người dùng
+
+                            <div class="section-title mt-4">
+                                <i class="fas fa-history me-2"></i>Lịch sử mượn sách
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table history-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i class="fas fa-book me-2"></i>Sách</th>
+                                            <th><i class="fas fa-calendar-plus me-2"></i>Ngày mượn</th>
+                                            <th><i class="fas fa-calendar-check me-2"></i>Hạn trả</th>
+                                            <th><i class="fas fa-calendar-day me-2"></i>Trả thực tế</th>
+                                            <th><i class="fas fa-info-circle me-2"></i>Trạng thái</th>
+                                            <th><i class="fas fa-dollar-sign me-2"></i>Phí phạt</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="historyTableBody">
+                                        <tr><td colspan="6" class="text-center text-muted">Đang tải lịch sử...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="section-title mt-4">
+                                <i class="fas fa-tools me-2"></i>Thao tác quản lý
+                            </div>
+                            
+                            <form id="banForm" class="action-form" style="display: none;">
+                                <input type="hidden" id="banUserId">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="banDays" class="form-label fw-bold">
+                                            <i class="fas fa-clock me-2"></i>Số ngày cấm
+                                        </label>
+                                        <input type="number" class="form-control form-control-modern" id="banDays" name="days" min="1" placeholder="Nhập số ngày" required>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label for="banReason" class="form-label fw-bold">
+                                            <i class="fas fa-comment-alt me-2"></i>Lý do cấm
+                                        </label>
+                                        <textarea class="form-control form-control-modern" id="banReason" name="reason" rows="3" placeholder="Nhập lý do cấm người dùng..." required></textarea>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-modern btn-ban">
+                                    <i class="fas fa-ban me-2"></i>Cấm người dùng
+                                </button>
+                            </form>
+                            
+                            <button id="unbanButton" class="btn btn-modern btn-unban" style="display: none;">
+                                <i class="fas fa-check-circle me-2"></i>Bỏ cấm người dùng
                             </button>
-                        </form>
-                        <button id="unbanButton" class="btn btn-success" style="display: none;">
-                            <i class="fas fa-check-circle me-1"></i>Bỏ cấm người dùng
-                        </button>
-                    </div>
-                    <div id="noUserSelectedAlert" class="alert alert-warning mt-4 text-center">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Vui lòng chọn một người dùng để xem thông tin và quản lý.
+                        </div>
+                        
+                        <div id="noUserSelectedAlert" class="alert-modern text-center">
+                            <i class="fas fa-info-circle me-2" style="font-size: 1.5rem;"></i>
+                            <div class="mt-2">
+                                <strong>Chưa chọn người dùng</strong>
+                                <p class="mb-0 mt-1">Vui lòng chọn một người dùng từ danh sách để xem thông tin chi tiết</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -122,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function() {
         userDetails.style.display = 'block';
         noUserSelectedAlert.style.display = 'none';
         banUserId.value = userId;
-        historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Đang tải lịch sử...</td></tr>';
+        historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Đang tải lịch sử...</td></tr>';
 
         try {
             const response = await fetch(`/admin/user/${userId}/history`);
@@ -135,15 +443,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 detailRole.textContent = data.user.role;
 
                 if (data.user.bannedUntil && new Date(data.user.bannedUntil) > new Date()) {
-                    detailBannedStatus.innerHTML = '<span class="badge bg-danger">Đang bị cấm</span>';
+                    detailBannedStatus.innerHTML = '<span class="status-badge badge-banned">Đang bị cấm</span>';
                     detailBannedUntil.textContent = new Date(data.user.bannedUntil).toLocaleDateString('vi-VN');
                     detailBannedReason.textContent = data.user.bannedReason || 'Không có';
-                    detailBannedUntilRow.style.display = 'block';
-                    detailBannedReasonRow.style.display = 'block';
+                    detailBannedUntilRow.style.display = 'flex';
+                    detailBannedReasonRow.style.display = 'flex';
                     banForm.style.display = 'none';
-                    unbanButton.style.display = 'block';
+                    unbanButton.style.display = 'inline-block';
                 } else {
-                    detailBannedStatus.innerHTML = '<span class="badge bg-success">Hoạt động</span>';
+                    detailBannedStatus.innerHTML = '<span class="status-badge badge-active">Hoạt động</span>';
                     detailBannedUntilRow.style.display = 'none';
                     detailBannedReasonRow.style.display = 'none';
                     banForm.style.display = 'block';
@@ -157,24 +465,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.borrowRequests.forEach(req => {
                         const row = `
                             <tr>
-                                <td>${req.bookTitle} (${req.bookCode})</td>
+                                <td><strong>${req.bookTitle}</strong><br><small class="text-muted">${req.bookCode}</small></td>
                                 <td>${req.borrowDate ? new Date(req.borrowDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
                                 <td>${req.returnDate ? new Date(req.returnDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
                                 <td>${req.actualReturnDate ? new Date(req.actualReturnDate).toLocaleDateString('vi-VN') : 'N/A'}</td>
                                 <td><span class="badge bg-${getStatusBadgeClass(req.status)}">${getStatusText(req.status)}</span></td>
-                                <td>${req.fine ? req.fine.toLocaleString('vi-VN') + ' VND' : '0 VND'}</td>
+                                <td><strong>${req.fine ? req.fine.toLocaleString('vi-VN') + ' VND' : '0 VND'}</strong></td>
                             </tr>
                         `;
                         historyTableBody.insertAdjacentHTML('beforeend', row);
                     });
                 } else {
-                    historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Chưa có lịch sử mượn sách.</td></tr>';
+                    historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><i class="fas fa-inbox me-2"></i>Chưa có lịch sử mượn sách</td></tr>';
                 }
             }
         } catch (error) {
             console.error('Error fetching user history:', error);
             alert('Có lỗi xảy ra khi tải thông tin người dùng.');
-            historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Lỗi tải dữ liệu.</td></tr>';
+            historyTableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Lỗi tải dữ liệu</td></tr>';
         }
     });
 
@@ -184,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const days = banDaysInput.value;
         const reason = banReasonInput.value;
 
-        if (!confirm(`Bạn có chắc chắn muốn cấm người dùng này trong ${days} ngày?`)) {
+        if (!confirm(`Bạn có chắc chắn muốn cấm người dùng này trong ${days} ngày?\n\nLý do: ${reason}`)) {
             return;
         }
 

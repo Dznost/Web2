@@ -1,50 +1,584 @@
-﻿<!-- views/librarian/payment.ejs -->
-<%- include('../layouts/main') %>
+﻿<%- include('../layouts/main') %>
 
-<main class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-          <h5 class="mb-0"><i class="fas fa-money-check-alt me-2"></i>Thanh toán trễ hạn</h5>
-        </div>
-        <div class="card-body">
-          <form action="/librarian/payment" method="POST">
-            <div class="mb-3">
-              <label for="confirmationCode" class="form-label">Nhập mã xác nhận</label>
-              <input type="text" class="form-control" id="confirmationCode" name="confirmationCode" placeholder="Nhập mã xác nhận..." required>
-            </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-success">
-                <i class="fas fa-calculator me-1"></i>Tính tiền
-              </button>
-            </div>
-          </form>
+<style>
+/* Variables CSS */
+:root {
+  --success-green: #10b981;
+  --success-dark: #059669;
+  --warning-yellow: #f59e0b;
+  --danger-red: #ef4444;
+  --bg-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --shadow-soft: 0 10px 40px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.12);
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-          <% if (result) { %>
-            <hr>
-            <h6 class="text-success"><i class="fas fa-receipt me-2"></i>Kết quả thanh toán</h6>
-            <ul class="list-group mb-3">
-              <li class="list-group-item"><strong>Tên sách:</strong> <%= result.bookTitle %></li>
-              <li class="list-group-item"><strong>Người mượn:</strong> <%= result.userName %> (<%= result.userRole %>)</li>
-              <li class="list-group-item"><strong>Ngày mượn:</strong> <%= result.borrowDate %></li>
-              <li class="list-group-item"><strong>Ngày trả:</strong> <%= result.returnDate %></li>
-              <li class="list-group-item"><strong>Phí phải trả:</strong> <%= result.totalFee.toLocaleString() %> VND</li>
-            </ul>
+/* Layout principal avec gradient vert */
+.page-wrapper {
+  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  min-height: 100vh;
+  padding: 60px 20px;
+  position: relative;
+  overflow: hidden;
+}
 
-            <div class="alert alert-info">
-              <strong>Thông tin thanh toán:</strong><br>
-              Ngân hàng: Bank<br>
-              Số tài khoản: 123456789999<br>
-              Tên người nhận: Duong Quoc Bao<br>
-            </div>
-          <% } else if (error) { %>
-            <div class="alert alert-danger mt-3">
-              <i class="fas fa-exclamation-circle me-1"></i><%= error %>
-            </div>
-          <% } %>
+.page-wrapper::before {
+  content: '💰';
+  position: absolute;
+  font-size: 300px;
+  opacity: 0.05;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+  50% { transform: translate(-50%, -55%) rotate(5deg); }
+}
+
+/* Pattern de fond */
+.page-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.05) 35px, rgba(255,255,255,.05) 70px);
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Card principal glassmorphism */
+.payment-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header avec effet premium */
+.card-header-custom {
+  background: var(--bg-gradient);
+  padding: 36px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-header-custom::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.card-header-custom h4 {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card-header-custom h4 i {
+  font-size: 2.2rem;
+  animation: swing 2s ease-in-out infinite;
+}
+
+@keyframes swing {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+/* Corps de la card */
+.card-body {
+  padding: 40px;
+}
+
+.intro-text {
+  color: #64748b;
+  font-size: 1.05rem;
+  margin-bottom: 32px;
+  line-height: 1.7;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.intro-text::before {
+  content: '💡';
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+/* Formulaire stylisé */
+.form-label {
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.form-label i {
+  color: var(--success-green);
+}
+
+.form-control {
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  font-size: 1.05rem;
+  border: 2px solid #e2e8f0;
+  transition: var(--transition);
+  background: #fafafa;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--success-green);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+  transform: translateY(-2px);
+  background: white;
+}
+
+.form-control::placeholder {
+  color: #94a3b8;
+}
+
+/* Bouton de soumission premium */
+.btn-submit {
+  background: var(--bg-gradient);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 16px 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: var(--transition);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-submit:hover::before {
+  left: 100%;
+}
+
+.btn-submit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.5);
+}
+
+.btn-submit:active {
+  transform: translateY(-1px);
+}
+
+.btn-submit i {
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+/* Zone de résultats avec design premium */
+.payment-result {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  border: 2px solid #86efac;
+  animation: fadeInScale 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.payment-result::before {
+  content: '✓';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 80px;
+  color: var(--success-green);
+  opacity: 0.1;
+  font-weight: bold;
+}
+
+.payment-result h6 {
+  color: #065f46;
+  font-weight: 700;
+  margin-bottom: 24px;
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.payment-result h6 i {
+  color: var(--success-green);
+  font-size: 1.5rem;
+}
+
+/* Liste améliorée */
+.list-group {
+  background: white;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.list-group-item {
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  font-size: 1rem;
+  transition: var(--transition);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-group-item:last-child {
+  border-bottom: none;
+}
+
+.list-group-item:hover {
+  background: #f8fafc;
+  padding-left: 24px;
+}
+
+.list-group-item strong {
+  color: #475569;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list-group-item strong::before {
+  content: '▪';
+  color: var(--success-green);
+  font-size: 1.2rem;
+}
+
+.fee-amount {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+  padding: 12px 24px;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 1.3rem;
+  border: 2px solid #fca5a5;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+  animation: pulse-fee 2s ease-in-out infinite;
+}
+
+@keyframes pulse-fee {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Carte d'informations bancaires */
+.bank-info-card {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 2px solid #93c5fd;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bank-info-card::before {
+  content: '🏦';
+  position: absolute;
+  font-size: 120px;
+  opacity: 0.08;
+  right: -20px;
+  bottom: -30px;
+}
+
+.bank-info-card strong {
+  color: #1e40af;
+  font-size: 1.1rem;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.bank-detail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  transition: var(--transition);
+}
+
+.bank-detail:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateX(5px);
+}
+
+.bank-detail i {
+  color: #3b82f6;
+  font-size: 1.1rem;
+}
+
+.bank-detail-label {
+  color: #475569;
+  font-weight: 600;
+  min-width: 120px;
+}
+
+.bank-detail-value {
+  color: #0f172a;
+  font-weight: 700;
+  flex: 1;
+}
+
+.transfer-note {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(254, 243, 199, 0.5);
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+}
+
+.transfer-note em {
+  color: #92400e;
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* Alerte d'erreur moderne */
+.alert-danger {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border: 2px solid #fca5a5;
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  color: #991b1b;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.alert-danger i {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-wrapper {
+    padding: 30px 15px;
+  }
+  
+  .card-body {
+    padding: 24px 20px;
+  }
+  
+  .card-header-custom h4 {
+    font-size: 1.5rem;
+  }
+  
+  .list-group-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .fee-amount {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .bank-detail {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .bank-detail-label {
+    min-width: auto;
+  }
+}
+</style>
+
+<div class="page-wrapper">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-9 col-lg-8">
+        <div class="payment-card card">
+          <div class="card-header-custom">
+            <h4>
+              <i class="fas fa-money-check-alt"></i>
+              Thanh toán trễ hạn
+            </h4>
+          </div>
+          <div class="card-body">
+            <p class="intro-text">
+              Nhập mã xác nhận mượn sách để tính toán phí trễ hạn và xem hướng dẫn thanh toán chi tiết.
+            </p>
+
+            <form action="/librarian/payment" method="POST" class="mb-4">
+              <div class="mb-4">
+                <label for="confirmationCode" class="form-label">
+                  <i class="fas fa-barcode"></i>
+                  Mã xác nhận
+                </label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="confirmationCode" 
+                  name="confirmationCode"
+                  placeholder="Ví dụ: BR16789ABC..." 
+                  required
+                  autocomplete="off"
+                >
+              </div>
+              <div class="d-grid">
+                <button type="submit" class="btn btn-success btn-submit">
+                  <i class="fas fa-calculator"></i>Tính tiền phí trễ hạn
+                </button>
+              </div>
+            </form>
+
+            <% if (result) { %>
+              <div class="payment-result mt-4">
+                <h6>
+                  <i class="fas fa-receipt"></i>
+                  Kết quả thanh toán
+                </h6>
+                <ul class="list-group mb-4">
+                  <li class="list-group-item">
+                    <strong>Tên sách</strong>
+                    <span><%= result.bookTitle %></span>
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Người mượn</strong>
+                    <span><%= result.userName %> (<%= result.userRole %>)</span>
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Ngày mượn</strong>
+                    <span><%= result.borrowDate %></span>
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Ngày trả</strong>
+                    <span><%= result.returnDate %></span>
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Phí phải trả</strong>
+                    <span class="fee-amount"><%= result.totalFee.toLocaleString() %> VND</span>
+                  </li>
+                </ul>
+
+                <div class="bank-info-card">
+                  <strong><i class="fas fa-university"></i> Thông tin thanh toán:</strong>
+                  
+                  <div class="bank-detail">
+                    <i class="fas fa-building"></i>
+                    <span class="bank-detail-label">Ngân hàng:</span>
+                    <span class="bank-detail-value">Bank</span>
+                  </div>
+                  
+                  <div class="bank-detail">
+                    <i class="fas fa-credit-card"></i>
+                    <span class="bank-detail-label">Số tài khoản:</span>
+                    <span class="bank-detail-value">123456789999</span>
+                  </div>
+                  
+                  <div class="bank-detail">
+                    <i class="fas fa-user"></i>
+                    <span class="bank-detail-label">Tên người nhận:</span>
+                    <span class="bank-detail-value">Duong Quoc Bao</span>
+                  </div>
+                  
+                  <div class="transfer-note">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Nội dung chuyển khoản:</strong><br>
+                    <em>"Thanh toán trễ hạn - Mã <%= result.confirmationCode %>"</em>
+                  </div>
+                </div>
+              </div>
+            <% } else if (error) { %>
+              <div class="alert alert-danger mt-4">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><%= error %></span>
+              </div>
+            <% } %>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</main>
+</div>

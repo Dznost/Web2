@@ -1,102 +1,781 @@
 <%- include('../layouts/main') %>
 
-<div class="container">
+<div class="container mt-4 mb-5">
+    <!-- Header Section -->
+    <div class="request-header mb-5">
+        <div class="text-center">
+            <div class="request-icon-wrapper mb-3">
+                <i class="fas fa-book-medical"></i>
+            </div>
+            <h1 class="request-title mb-2">Yêu cầu sách mới</h1>
+            <p class="request-subtitle">Giúp chúng tôi mở rộng thư viện với những đầu sách bạn quan tâm</p>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        Yêu cầu sách mới
-                    </h4>
+        <div class="col-lg-8 col-xl-7">
+            <!-- Info Card -->
+            <div class="info-card mb-4">
+                <div class="info-icon">
+                    <i class="fas fa-lightbulb"></i>
                 </div>
-                <div class="card-body">
-                    <p class="text-muted mb-4">
-                        Không tìm thấy sách bạn cần? Hãy gửi yêu cầu để chúng tôi xem xét bổ sung vào thư viện.
-                    </p>
-                    
+                <div class="info-content">
+                    <h5 class="info-title">Không tìm thấy sách bạn cần?</h5>
+                    <p class="info-text">Hãy gửi yêu cầu để chúng tôi xem xét bổ sung vào thư viện. Mỗi yêu cầu của bạn đều được đánh giá cao!</p>
+                </div>
+            </div>
+
+            <!-- Main Form Card -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <i class="fas fa-edit"></i>
+                    <h4>Thông tin sách yêu cầu</h4>
+                </div>
+                
+                <div class="form-card-body">
                     <form id="bookRequestForm">
+                        <!-- Book Title & Author -->
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="title" class="form-label">
-                                        <i class="fas fa-book me-1"></i>Tên sách *
+                                <div class="form-group-custom">
+                                    <label for="title" class="form-label-custom">
+                                        <i class="fas fa-book text-success me-2"></i>
+                                        Tên sách
+                                        <span class="required">*</span>
                                     </label>
-                                    <input type="text" class="form-control" id="title" name="title" required>
+                                    <input 
+                                        type="text" 
+                                        class="form-control-custom" 
+                                        id="title" 
+                                        name="title" 
+                                        placeholder="Nhập tên sách..."
+                                        required
+                                    >
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Vui lòng nhập tên đầy đủ của sách
+                                    </div>
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="author" class="form-label">
-                                        <i class="fas fa-user me-1"></i>Tác giả *
+                                <div class="form-group-custom">
+                                    <label for="author" class="form-label-custom">
+                                        <i class="fas fa-user-edit text-success me-2"></i>
+                                        Tác giả
+                                        <span class="required">*</span>
                                     </label>
-                                    <input type="text" class="form-control" id="author" name="author" required>
+                                    <input 
+                                        type="text" 
+                                        class="form-control-custom" 
+                                        id="author" 
+                                        name="author" 
+                                        placeholder="Nhập tên tác giả..."
+                                        required
+                                    >
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Tên tác giả hoặc nhóm tác giả
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <!-- Year & Genre -->
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="year" class="form-label">
-                                        <i class="fas fa-calendar me-1"></i>Năm xuất bản
+                                <div class="form-group-custom">
+                                    <label for="year" class="form-label-custom">
+                                        <i class="fas fa-calendar-alt text-success me-2"></i>
+                                        Năm xuất bản
                                     </label>
-                                    <input type="number" class="form-control" id="year" name="year" 
-                                           min="1900" max="<%= new Date().getFullYear() %>">
+                                    <input 
+                                        type="number" 
+                                        class="form-control-custom" 
+                                        id="year" 
+                                        name="year" 
+                                        min="1900" 
+                                        max="<%= new Date().getFullYear() %>"
+                                        placeholder="Ví dụ: 2024"
+                                    >
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Năm phát hành sách (nếu biết)
+                                    </div>
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label for="genre" class="form-label">
-                                        <i class="fas fa-tag me-1"></i>Thể loại
+                                <div class="form-group-custom">
+                                    <label for="genre" class="form-label-custom">
+                                        <i class="fas fa-tags text-success me-2"></i>
+                                        Thể loại
                                     </label>
-                                    <input type="text" class="form-control" id="genre" name="genre" 
-                                           placeholder="Ví dụ: Văn học, Khoa học, Lịch sử...">
+                                    <select class="form-control-custom" id="genre" name="genre">
+                                        <option value="">-- Chọn thể loại --</option>
+                                        <option value="Văn học">📚 Văn học</option>
+                                        <option value="Khoa học">🔬 Khoa học</option>
+                                        <option value="Lịch sử">📜 Lịch sử</option>
+                                        <option value="Kinh tế">💼 Kinh tế</option>
+                                        <option value="Công nghệ">💻 Công nghệ</option>
+                                        <option value="Tâm lý">🧠 Tâm lý</option>
+                                        <option value="Kỹ năng sống">🌟 Kỹ năng sống</option>
+                                        <option value="Thiếu nhi">🧒 Thiếu nhi</option>
+                                        <option value="Tiểu thuyết">📖 Tiểu thuyết</option>
+                                        <option value="Khác">📋 Khác</option>
+                                    </select>
+                                    <div class="input-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        Chọn thể loại phù hợp nhất
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="summary" class="form-label">
-                                <i class="fas fa-align-left me-1"></i>Tóm tắt nội dung
+
+                        <!-- Publisher & ISBN -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-custom">
+                                    <label for="publisher" class="form-label-custom">
+                                        <i class="fas fa-building text-success me-2"></i>
+                                        Nhà xuất bản
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control-custom" 
+                                        id="publisher" 
+                                        name="publisher" 
+                                        placeholder="Nhà xuất bản..."
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-group-custom">
+                                    <label for="isbn" class="form-label-custom">
+                                        <i class="fas fa-barcode text-success me-2"></i>
+                                        ISBN
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control-custom" 
+                                        id="isbn" 
+                                        name="isbn" 
+                                        placeholder="Mã ISBN (nếu có)..."
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="form-group-custom">
+                            <label for="summary" class="form-label-custom">
+                                <i class="fas fa-align-left text-success me-2"></i>
+                                Tóm tắt nội dung
                             </label>
-                            <textarea class="form-control" id="summary" name="summary" rows="4" 
-                                      placeholder="Mô tả ngắn gọn về nội dung cuốn sách..."></textarea>
+                            <textarea 
+                                class="form-control-custom" 
+                                id="summary" 
+                                name="summary" 
+                                rows="4" 
+                                placeholder="Mô tả ngắn gọn về nội dung, chủ đề của cuốn sách..."
+                            ></textarea>
+                            <div class="char-counter">
+                                <span id="summaryCount">0</span>/500 ký tự
+                            </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <label for="reason" class="form-label">
-                                <i class="fas fa-question-circle me-1"></i>Lý do yêu cầu *
+
+                        <!-- Reason -->
+                        <div class="form-group-custom">
+                            <label for="reason" class="form-label-custom">
+                                <i class="fas fa-question-circle text-success me-2"></i>
+                                Lý do yêu cầu
+                                <span class="required">*</span>
                             </label>
-                            <textarea class="form-control" id="reason" name="reason" rows="3" 
-                                      placeholder="Vì sao bạn muốn thư viện có cuốn sách này?" required></textarea>
+                            <textarea 
+                                class="form-control-custom" 
+                                id="reason" 
+                                name="reason" 
+                                rows="3" 
+                                placeholder="Vì sao bạn muốn thư viện có cuốn sách này? Sách này sẽ hữu ích như thế nào?"
+                                required
+                            ></textarea>
+                            <div class="char-counter">
+                                <span id="reasonCount">0</span>/300 ký tự
+                            </div>
                         </div>
-                        
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Lưu ý:</strong> Yêu cầu của bạn sẽ được xem xét và phản hồi trong vòng 7-10 ngày làm việc.
+
+                        <!-- Priority Level -->
+                        <div class="form-group-custom">
+                            <label class="form-label-custom">
+                                <i class="fas fa-star text-success me-2"></i>
+                                Mức độ ưu tiên
+                            </label>
+                            <div class="priority-options">
+                                <label class="priority-option">
+                                    <input type="radio" name="priority" value="low" checked>
+                                    <span class="priority-card priority-low">
+                                        <i class="fas fa-circle"></i>
+                                        <div class="priority-label">Thấp</div>
+                                        <div class="priority-desc">Tham khảo thêm</div>
+                                    </span>
+                                </label>
+                                <label class="priority-option">
+                                    <input type="radio" name="priority" value="medium">
+                                    <span class="priority-card priority-medium">
+                                        <i class="fas fa-circle"></i>
+                                        <div class="priority-label">Trung bình</div>
+                                        <div class="priority-desc">Cần cho học tập</div>
+                                    </span>
+                                </label>
+                                <label class="priority-option">
+                                    <input type="radio" name="priority" value="high">
+                                    <span class="priority-card priority-high">
+                                        <i class="fas fa-circle"></i>
+                                        <div class="priority-label">Cao</div>
+                                        <div class="priority-desc">Rất cần thiết</div>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
-                        
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                            <a href="/books" class="btn btn-secondary me-md-2">
-                                <i class="fas fa-arrow-left me-1"></i>Quay lại
+
+                        <!-- Notice Alert -->
+                        <div class="notice-alert">
+                            <div class="notice-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="notice-content">
+                                <strong>Thời gian xử lý:</strong> Yêu cầu của bạn sẽ được xem xét và phản hồi trong vòng 7-10 ngày làm việc.
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-actions">
+                            <a href="/books" class="btn-custom btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>
+                                Quay lại
                             </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-paper-plane me-1"></i>Gửi yêu cầu
+                            <button type="submit" class="btn-custom btn-primary" id="submitBtn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Gửi yêu cầu
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="tips-card mt-4">
+                <div class="tips-header">
+                    <i class="fas fa-lightbulb"></i>
+                    <h5>Mẹo để yêu cầu hiệu quả</h5>
+                </div>
+                <div class="tips-body">
+                    <div class="tip-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Cung cấp thông tin chi tiết và chính xác nhất có thể</span>
+                    </div>
+                    <div class="tip-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Giải thích rõ lý do tại sao sách này quan trọng với bạn</span>
+                    </div>
+                    <div class="tip-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Kiểm tra kỹ trước khi gửi để tránh sai sót</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content success-modal">
+            <div class="modal-body text-center p-5">
+                <div class="success-icon mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h4 class="mb-3">Gửi yêu cầu thành công!</h4>
+                <p class="text-muted mb-4">
+                    Cảm ơn bạn đã gửi yêu cầu. Chúng tôi sẽ xem xét và phản hồi sớm nhất có thể.
+                </p>
+                <button type="button" class="btn-custom btn-primary" data-bs-dismiss="modal">
+                    <i class="fas fa-check me-2"></i>Đã hiểu
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Header Section */
+.request-header {
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    border-radius: 20px;
+    margin-bottom: 2rem;
+}
+
+.request-icon-wrapper {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.request-icon-wrapper i {
+    font-size: 3rem;
+    color: white;
+}
+
+.request-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #059669, #10b981);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.request-subtitle {
+    font-size: 1.1rem;
+    color: #64748b;
+}
+
+/* Info Card */
+.info-card {
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    border: 2px solid #bfdbfe;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.info-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.info-icon i {
+    font-size: 1.8rem;
+    color: white;
+}
+
+.info-content {
+    flex: 1;
+}
+
+.info-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 0.5rem;
+}
+
+.info-text {
+    color: #475569;
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Form Card */
+.form-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 2px solid #e2e8f0;
+}
+
+.form-card-header {
+    background: linear-gradient(135deg, #10b981, #059669);
+    padding: 2rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.form-card-header i {
+    font-size: 2rem;
+}
+
+.form-card-header h4 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.form-card-body {
+    padding: 2.5rem;
+}
+
+/* Form Groups */
+.form-group-custom {
+    margin-bottom: 2rem;
+}
+
+.form-label-custom {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+}
+
+.required {
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: #f8fafc;
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: #10b981;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.form-control-custom::placeholder {
+    color: #94a3b8;
+}
+
+.input-hint {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+.char-counter {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+}
+
+/* Priority Options */
+.priority-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.priority-option {
+    cursor: pointer;
+}
+
+.priority-option input[type="radio"] {
+    display: none;
+}
+
+.priority-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.priority-card i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.priority-label {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.priority-desc {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.priority-low {
+    color: #6b7280;
+}
+
+.priority-medium {
+    color: #f59e0b;
+}
+
+.priority-high {
+    color: #ef4444;
+}
+
+.priority-option input[type="radio"]:checked ~ .priority-card {
+    border-color: currentColor;
+    background: white;
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.priority-option input[type="radio"]:checked ~ .priority-low {
+    border-color: #6b7280;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+}
+
+.priority-option input[type="radio"]:checked ~ .priority-medium {
+    border-color: #f59e0b;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.priority-option input[type="radio"]:checked ~ .priority-high {
+    border-color: #ef4444;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+}
+
+/* Notice Alert */
+.notice-alert {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.notice-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notice-icon i {
+    font-size: 1.3rem;
+    color: white;
+}
+
+.notice-content {
+    flex: 1;
+    color: #1e40af;
+    line-height: 1.6;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 2px solid #e2e8f0;
+}
+
+.btn-custom {
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e1;
+    color: #1e293b;
+}
+
+/* Tips Card */
+.tips-card {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 16px;
+    padding: 1.5rem;
+    border: 2px solid #fbbf24;
+}
+
+.tips-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    color: #92400e;
+}
+
+.tips-header i {
+    font-size: 1.5rem;
+}
+
+.tips-header h5 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.tips-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    color: #78350f;
+}
+
+.tip-item i {
+    color: #f59e0b;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+/* Success Modal */
+.success-modal .modal-content {
+    border-radius: 20px;
+    border: none;
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.success-icon i {
+    font-size: 3.5rem;
+    color: #10b981;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .request-header {
+        padding: 2rem 1rem;
+    }
+    
+    .request-icon-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .request-icon-wrapper i {
+        font-size: 2.5rem;
+    }
+    
+    .request-title {
+        font-size: 2rem;
+    }
+    
+    .form-card-body {
+        padding: 1.5rem;
+    }
+    
+    .priority-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-custom {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .info-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
 <script>
+// Character counters
+document.getElementById('summary').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('summaryCount').textContent = count;
+    if (count > 500) {
+        this.value = this.value.substring(0, 500);
+        document.getElementById('summaryCount').textContent = 500;
+    }
+});
+
+document.getElementById('reason').addEventListener('input', function() {
+    const count = this.value.length;
+    document.getElementById('reasonCount').textContent = count;
+    if (count > 300) {
+        this.value = this.value.substring(0, 300);
+        document.getElementById('reasonCount').textContent = 300;
+    }
+});
+
+// Form submission
 document.getElementById('bookRequestForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitBtn');
+    const originalText = submitBtn.innerHTML;
+    
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
     
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
@@ -113,13 +792,24 @@ document.getElementById('bookRequestForm').addEventListener('submit', async func
         const result = await response.json();
         
         if (result.success) {
-            alert(result.message);
+            // Show success modal
+            const modal = new bootstrap.Modal(document.getElementById('successModal'));
+            modal.show();
+            
+            // Reset form
             this.reset();
+            document.getElementById('summaryCount').textContent = '0';
+            document.getElementById('reasonCount').textContent = '0';
         } else {
-            alert(result.error || 'Có lỗi xảy ra');
+            alert('❌ ' + (result.error || 'Có lỗi xảy ra'));
         }
     } catch (error) {
-        alert('Có lỗi xảy ra khi gửi yêu cầu');
+        console.error('Error:', error);
+        alert('❌ Có lỗi xảy ra khi gửi yêu cầu');
+    } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
     }
 });
 </script>
