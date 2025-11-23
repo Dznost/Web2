@@ -73,46 +73,6 @@
     </div>
     <% } %>
 
-    <!-- Filter Tabs -->
-    <% if (borrowRequests.length > 0) { %>
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-3">
-            <ul class="nav nav-pills filter-tabs" id="statusFilter">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#" data-filter="all">
-                        <i class="fas fa-list me-1"></i>Tất cả
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-filter="pending">
-                        <i class="fas fa-clock me-1"></i>Chờ xử lý
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-filter="approved">
-                        <i class="fas fa-check-circle me-1"></i>Đã duyệt
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-filter="borrowed">
-                        <i class="fas fa-book-reader me-1"></i>Đang mượn
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-filter="returned">
-                        <i class="fas fa-undo me-1"></i>Đã trả
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-filter="cancelled">
-                        <i class="fas fa-times-circle me-1"></i>Đã hủy
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <% } %>
-
     <!-- Main Content -->
     <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
@@ -403,44 +363,6 @@ function getStatusBadge(status) {
     margin-top: 0.25rem;
 }
 
-/* Filter Tabs */
-.filter-tabs {
-    gap: 0.5rem;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-}
-
-.filter-tabs::-webkit-scrollbar {
-    height: 4px;
-}
-
-.filter-tabs::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
-}
-
-.filter-tabs .nav-link {
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    color: #64748b;
-    font-weight: 500;
-    border: 2px solid transparent;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.filter-tabs .nav-link:hover {
-    background: #f1f5f9;
-    color: #2563eb;
-}
-
-.filter-tabs .nav-link.active {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
-    color: white;
-    border-color: #2563eb;
-}
-
 /* Table Styles */
 .table-header {
     background: linear-gradient(135deg, #1e3a8a, #2563eb);
@@ -718,32 +640,6 @@ function getStatusBadge(status) {
 </style>
 
 <script>
-// Filter functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const filterLinks = document.querySelectorAll('#statusFilter .nav-link');
-    const requestRows = document.querySelectorAll('.request-row, .mobile-request-card');
-    
-    filterLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Update active state
-            filterLinks.forEach(l => l.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Filter rows
-            const filter = this.dataset.filter;
-            requestRows.forEach(row => {
-                if (filter === 'all' || row.dataset.status === filter) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-        });
-    });
-});
-
 // Cancel request function
 async function cancelRequest(requestId) {
     if (!confirm('Bạn có chắc chắn muốn hủy yêu cầu mượn sách này?')) return;
